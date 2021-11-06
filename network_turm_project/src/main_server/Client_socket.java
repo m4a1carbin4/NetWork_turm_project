@@ -22,6 +22,7 @@ public class Client_socket extends Thread {
 	JSONParser parser = new JSONParser();
 	
 	String Threadname;
+	
 	String str;
 	
 	Main_server server;
