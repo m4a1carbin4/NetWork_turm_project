@@ -48,9 +48,7 @@ public class Client_manager{
 			System.out.println("parsing_error");
 		}
 		
-		String ptr = String.valueOf(tmp.get("ID"));
-		
-		client_list.put(Integer.parseInt(ptr), user);
+		client_list.put(((Long)tmp.get("ID")).intValue(), user);
 		user.manager = this;
 		user_num +=1;
 		return true;

@@ -1,5 +1,7 @@
-# Test
-# Use SOURCE command to run this script
+# ...
+# I tried using sql with port forwarding,
+# As I did not checked that it is work on other computer, it may not work on your computer.
+# In that case, try upload this on your computer and join in localhost(change the addr 192.168.65.165:3306 to localhost:3306).
 
 DROP DATABASE GAME_DB;
 CREATE DATABASE GAME_DB;
@@ -7,13 +9,14 @@ USE GAME_DB;
 
 CREATE TABLE PLAYER (
 # Base Settings
+ID INT UNIQUE KEY NOT NULL,
 USER_ID VARCHAR(100) PRIMARY KEY,
 PASSWORD VARCHAR(500) NOT NULL,
-USER_TYPE SMALLINT,
+USER_TYPE SMALLINT NOT NULL,
 
 # Private data
-NAME VARCHAR(200),
-NICKNAME VARCHAR(200) UNIQUE KEY,
+NAME VARCHAR(200) NOT NULL,
+NICKNAME VARCHAR(200) UNIQUE KEY NOT NULL,
 EMAIL VARCHAR(200),
 PRIVATE_SITE VARCHAR(200),
 
@@ -43,26 +46,26 @@ FOREIGN KEY (TARGET) REFERENCES PLAYER(USER_ID) ON DELETE CASCADE);
 
 # A View for accessing personal data
 CREATE VIEW PLAYER_DATA AS
-SELECT USER_ID, NAME, NICKNAME, EMAIL, PRIVATE_SITE
+SELECT ID, USER_ID, NAME, NICKNAME, EMAIL, PRIVATE_SITE
 FROM PLAYER;
 
 # A View for accessing player status
 CREATE VIEW PLAYER_STAT AS
-SELECT USER_ID, CONNECTION, CON_DATE, WIN, LOSS
+SELECT NICKNAME, CONNECTION, CON_DATE, WIN, LOSS
 FROM PLAYER;
 
 # Insert a data of administrator
 INSERT INTO PLAYER VALUES (
-"administrator", hex(aes_encrypt("admin_password_teamb", "team2")), 0,
+0, "administrator", hex(aes_encrypt("admin_password_teamb", "team2")), 0,
 "Admin", "Administrator", "nw_teamb@gachon.ac.kr", "https://www.gachon.ac.kr/",
 false, null, 0, 0, 0);
 
 # Note: recent status of game_db on 211108:
-# +---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
-# | USER_ID       | PASSWORD                                                         | USER_TYPE | NAME  | NICKNAME      | EMAIL                 | PRIVATE_SITE              | CONNECTION | CON_DATE | ROOM_JOINING | WIN  | LOSS |
-# +---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
-# | administrator | 641E1C537965796F5D26A047486D865C231E76455D938F7B23A78F45E1947080 |         0 | Admin | Administrator | nw_teamb@gachon.ac.kr | https://www.gachon.ac.kr/ |          0 | NULL     |            0 |    0 |    0 |
-# +---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
+# +----+---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
+# | ID | USER_ID       | PASSWORD                                                         | USER_TYPE | NAME  | NICKNAME      | EMAIL                 | PRIVATE_SITE              | CONNECTION | CON_DATE | ROOM_JOINING | WIN  | LOSS |
+# +----+---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
+# |  0 | administrator | 641E1C537965796F5D26A047486D865C231E76455D938F7B23A78F45E1947080 |         0 | Admin | Administrator | nw_teamb@gachon.ac.kr | https://www.gachon.ac.kr/ |          0 | NULL     |            0 |    0 |    0 |
+# +----+---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
 # Other tables are all empty.
 
 COMMIT;

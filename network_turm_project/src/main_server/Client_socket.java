@@ -93,6 +93,8 @@ public class Client_socket extends Thread {
 		this.server = server;
 		this.socket = socket;
 		this.echo = echo;
+		this.manager = new Client_manager(server);
+		
 		Threadname = super.getName();
 		
 		System.out.println("new Socket connect! name : "+Threadname);
