@@ -77,7 +77,8 @@ public class Main_server {
 	
 	public synchronized int Login_request(String data,Client_socket socket) {
 		
-		if(JDBC.Login(data)) {
+		data = JDBC.Login(data);
+		if(data != null) {
 			manager.client_access(data, socket);
 			try {
 				tmp = (JSONObject) parser.parse(data);
@@ -85,7 +86,7 @@ public class Main_server {
 				// TODO Auto-generated catch block
 				System.out.println("parser_fail");
 			}
-			return Integer.parseInt(String.valueOf(tmp.get("ID")));
+			return ((Long)tmp.get("ID")).intValue();
 		}else {
 			socket.Fail_login();
 			return -1;

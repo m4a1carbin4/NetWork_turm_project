@@ -92,6 +92,7 @@ public class ClientGui extends JFrame implements ActionListener, Runnable{
 	private void start() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		textField.addActionListener(this);
+		textArea.setEditable(false);
 	}
 	// 응답 대기
 	// -> 서버로부터 응답으로 전달된 문자열을 읽어서, textArea에 출력하기
@@ -125,7 +126,7 @@ public class ClientGui extends JFrame implements ActionListener, Runnable{
 		
 	}
 	
-	public String Login_maker(String passwd,int ID) {
+	public String Login_maker(String passwd,String ID) {
 		
 		JSONObject object = new JSONObject();
 		
@@ -176,12 +177,12 @@ public class ClientGui extends JFrame implements ActionListener, Runnable{
 	@Override
 	public void run() {
 		
-		int ID = -1;
+		String ID = null;
 		String passwd = null;
 		
 		try {
 			System.out.println("input ID :");
-			ID = Integer.parseInt(in.readLine());
+			ID = in.readLine();
 			System.out.println("input passwd :");
 			passwd = in.readLine();
 		} catch (NumberFormatException | IOException e1) {
@@ -211,6 +212,11 @@ public class ClientGui extends JFrame implements ActionListener, Runnable{
 				String Data = (String) input_data.get("Data");
 				
 				switch(Type) {
+				
+					case "Login_fail":
+						System.out.println("Wrong id or password!");
+						System.exit(0);
+						break;
 				
 					case "Message":
 						textArea.append(Data + "\n");
