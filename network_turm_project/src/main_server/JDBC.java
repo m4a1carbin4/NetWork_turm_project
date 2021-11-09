@@ -23,7 +23,7 @@ public class JDBC {
 	public JDBC() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://192.168.35.165:3306/game_db";
+			String url = "jdbc:mysql://gcckim2020.kro.kr:3306/game_db";
 			conn = DriverManager.getConnection(url, "root", "12345");
 
 			System.out.println("[JDBC] Connected with: " + url);
