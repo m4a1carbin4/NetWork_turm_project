@@ -67,7 +67,7 @@ public class Gui_chat {
 	private void initialize() {
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.WHITE);
-		ImageIcon human = new ImageIcon(this.getClass().getResource("/humanicon.jpeg"));
+		ImageIcon human = new ImageIcon(this.getClass().getResource("humanicon.jpeg"));
 		frame.getContentPane().setLayout(null);
 		
 		btnNewButton = new JButton("Online");
@@ -219,7 +219,7 @@ public class Gui_chat {
 		textField_1.setBounds(215, 43, 373, 356);
 		frame.getContentPane().add(textField_1);
 		textField_1.setColumns(10);
-		ImageIcon chat = new ImageIcon(this.getClass().getResource("/chaticon.png"));
+		ImageIcon chat = new ImageIcon(this.getClass().getResource("chaticon.png"));
 		frame.setBounds(100, 100, 723, 560);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

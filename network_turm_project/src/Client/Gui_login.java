@@ -7,11 +7,25 @@ import java.awt.BorderLayout;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JFormattedTextField;
 import javax.swing.SwingConstants;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.awt.SystemColor;
 import javax.swing.JLabel;
 
@@ -26,6 +40,16 @@ public class Gui_login {
 	private JTextField textField_4;
 	private JButton btnNewButton_1;
 	private JButton btnNewButton_2;
+	
+	Socket socket;
+	InputStream input = null;
+	OutputStream output = null;
+	DataInputStream datainput = null;
+	DataOutputStream dataoutput = null;
+	
+	JSONParser parser = new JSONParser();
+	
+	String str;
 
 	/**
 	 * Launch the application.
@@ -45,9 +69,36 @@ public class Gui_login {
 
 	/**
 	 * Create the application.
+	 * @throws UnknownHostException 
 	 */
-	public Gui_login() {
+	public Gui_login() throws UnknownHostException {
+		
+		InetAddress ia = InetAddress.getLocalHost();
+		String ip_str = ia.toString();
+		String ip = ip_str.substring(ip_str.indexOf("/") + 1);
+		
+		initNet(ip,9647);
 		initialize();
+	}
+	
+	private void initNet(String ip, int port) {
+		try {
+			// 서버에 접속 시도
+			socket = new Socket(ip, port);
+			// 통신용 input, output 클래스 설정
+			input = socket.getInputStream();
+			output = socket.getOutputStream();
+			
+			datainput = new DataInputStream(input);
+			dataoutput = new DataOutputStream(output);
+			
+		} catch (UnknownHostException e) {
+			System.out.println("IP 주소가 다릅니다.");
+			//e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("접속 실패");
+			//e.printStackTrace();
+		}
 	}
 
 	/**
@@ -85,6 +136,41 @@ public class Gui_login {
 		btnNewButton.setBackground(Color.BLACK);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				String ID = textField_3.getText();
+				String passwd = textField_4.getText();
+				
+				String Login = Json_maker(Login_maker(passwd,ID),"Login");
+				
+				try {
+					dataoutput.writeUTF(Login);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+				try {
+					str = datainput.readUTF();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				JSONObject input_data = Json_parser(str);
+				
+				String Type = (String) input_data.get("Type");
+				String Data = (String) input_data.get("Data");
+				
+				switch(Type) {
+				
+					case "Login_fail":
+						System.out.println("Wrong id or password!");
+						break;
+					case "Login_clear":
+						System.out.println("Login_clear!!");
+						//do something in next;
+						break;
+				}
+				
 			}
 		});
 		btnNewButton.setBounds(504, 228, 83, 33);
@@ -126,4 +212,45 @@ public class Gui_login {
 		textField_1.setColumns(10);
 	}
 
+	public JSONObject Json_parser(String data) {
+		
+		JSONObject json_data = null;
+		
+		try {
+			json_data = (JSONObject) parser.parse(data);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			System.out.println("incoming data error error ");
+		}
+		
+		return json_data;
+		
+	}
+	
+	public String Json_maker(String data,String type) {
+		
+		JSONObject object = new JSONObject();
+		
+		object.put("Type", type);
+		object.put("Data", data);
+		
+		
+		System.out.println("new json data");
+		
+		return object.toJSONString();
+		
+	}
+	
+	public String Login_maker(String passwd,String ID) {
+		
+		JSONObject object = new JSONObject();
+		
+		object.put("ID", ID);
+		object.put("passwd", passwd);
+		
+		System.out.println("new json_login data");
+		
+		return object.toJSONString();
+	}
+	
 }
