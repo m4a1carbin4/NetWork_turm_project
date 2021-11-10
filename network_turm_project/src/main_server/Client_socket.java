@@ -67,6 +67,33 @@ public class Client_socket extends Thread {
 		}
 	}
 	
+	public void clear_login() {
+		
+		try {
+			dataoutputstream.writeUTF(Json_maker("clear","Login_clear"));
+		} catch (IOException e) {
+			System.out.println("login_clear");
+		}
+	}
+	
+	public void clear_register() {
+		
+		try {
+			dataoutputstream.writeUTF(Json_maker("clear","Register_clear"));
+		} catch (IOException e) {
+			System.out.println("register_clear");
+		}
+	}
+	
+	public void fail_register() {
+		
+		try {
+			dataoutputstream.writeUTF(Json_maker("fail","Register_fail"));
+		} catch (IOException e) {
+			System.out.println("register_fail");
+		}
+	}
+	
 	public void send_message(String input) {
 		String str = Json_maker(input,"Message");
 		
@@ -96,6 +123,7 @@ public class Client_socket extends Thread {
 		this.manager = new Client_manager(server);
 		
 		Threadname = super.getName();
+		ID = -1;
 		
 		System.out.println("new Socket connect! name : "+Threadname);
 		
@@ -121,6 +149,9 @@ public class Client_socket extends Thread {
 				String Data = (String) input_data.get("Data");
 				
 				switch(Type) {
+				case "Register":
+					server.regiester_request(Data, this);
+					break;
 				case "Login":
 					ID = server.Login_request(Data, this);
 					break;
