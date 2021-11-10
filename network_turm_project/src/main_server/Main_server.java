@@ -86,10 +86,22 @@ public class Main_server {
 				// TODO Auto-generated catch block
 				System.out.println("parser_fail");
 			}
+			socket.clear_login();
 			return ((Long)tmp.get("ID")).intValue();
 		}else {
 			socket.Fail_login();
 			return -1;
+		}
+		
+	}
+	
+	public synchronized void regiester_request(String data,Client_socket socket) {
+		
+		Boolean result = JDBC.register(data);
+		if(result) {
+			socket.clear_login();
+		}else {
+			socket.Fail_login();
 		}
 		
 	}
