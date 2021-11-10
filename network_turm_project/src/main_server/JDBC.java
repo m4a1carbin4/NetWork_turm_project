@@ -23,8 +23,8 @@ public class JDBC {
 	public JDBC() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://192.168.35.165:3306/game_db";
-			conn = DriverManager.getConnection(url, "root", "12345");
+			String url = "jdbc:mysql://localhost/game_db";
+			conn = DriverManager.getConnection(url, "root", "youareadie2!A");
 
 			System.out.println("[JDBC] Connected with: " + url);
 		} catch (ClassNotFoundException e) {
