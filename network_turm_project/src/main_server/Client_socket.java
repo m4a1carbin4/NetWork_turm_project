@@ -76,19 +76,19 @@ public class Client_socket extends Thread {
 		}
 	}
 	
-	public void clear_register() {
+	public void clear_regiester() {
 		
 		try {
-			dataoutputstream.writeUTF(Json_maker("clear","Register_clear"));
+			dataoutputstream.writeUTF(Json_maker("clear","Regiester_clear"));
 		} catch (IOException e) {
 			System.out.println("register_clear");
 		}
 	}
 	
-	public void fail_register() {
+	public void fail_regiester() {
 		
 		try {
-			dataoutputstream.writeUTF(Json_maker("fail","Register_fail"));
+			dataoutputstream.writeUTF(Json_maker("fail","Regiester_fail"));
 		} catch (IOException e) {
 			System.out.println("register_fail");
 		}
@@ -179,7 +179,7 @@ public class Client_socket extends Thread {
 			
 		}catch (IOException e){
 			System.out.println(Threadname + " has been removed!");
-			manager.client_leave(ID, null);
+			manager.client_leave(ID, this);
 		} finally {
 			try {
 				if (dataoutputstream != null) dataoutputstream.close();
