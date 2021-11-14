@@ -7,6 +7,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.google.gson.Gson;
+
+import game_calculator.GameCalculator;
+import game_server.GameModel;
+
 public class Client_socket extends Thread {
 
 	Socket socket = null;
@@ -21,6 +26,8 @@ public class Client_socket extends Thread {
 	
 	JSONParser parser = new JSONParser();
 	
+	GameCalculator gameCalculator = null;
+	
 	String Threadname;
 	
 	String str;
@@ -28,6 +35,12 @@ public class Client_socket extends Thread {
 	Main_server server;
 	Client_manager manager;
 	Echo echo;
+	DataExportToAllClient game_echo;
+	
+	private StringBuilder jsonData = new StringBuilder();
+	
+	private Gson gson;
+	
 	int ID;
 	
 	public JSONObject Json_parser(String data) {
@@ -105,8 +118,37 @@ public class Client_socket extends Thread {
 		}
 	}
 	
+	public void Game_model_msg(String input) {
+		String str = Json_maker(input,"Game");
+		
+		try {
+			dataoutputstream.writeUTF(str);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("server_Game_model_msg_send_fail");
+		}
+	}
+	
+	public void Game_start(String input) {
+		String str = Json_maker(input,"Game_start");
+		
+		try {
+			dataoutputstream.writeUTF(str);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("server_Game_start_send_fail");
+		}
+	}
+	
 	public Boolean echo_change(Echo echo) {
 		this.echo = echo;
+		return true;
+	}
+	
+	public Boolean echo_change(DataExportToAllClient echo) {
+		this.echo = null;
+		this.game_echo = echo;
+		game_echo.getcal(this);
 		return true;
 	}
 	
@@ -114,9 +156,12 @@ public class Client_socket extends Thread {
 		this.manager = manager;
 		return true;
 	}
+	
+	public void game_cal_set(GameCalculator input) {
+		gameCalculator = input;
+	}
 
 	public Client_socket(Main_server server, Socket socket,Echo echo) {
-		
 		this.server = server;
 		this.socket = socket;
 		this.echo = echo;
@@ -158,8 +203,6 @@ public class Client_socket extends Thread {
 				case "Message":
 					echo.brodcast_message(Data);
 					break;
-				/*case "Game":
-					break;여전히 구상중인 파트.*/
 				case "new_Room":
 					server.make_Room(Data, this,ID);
 					break;
@@ -169,8 +212,35 @@ public class Client_socket extends Thread {
 				case "return":
 					manager.return_main(ID,this);
 					break;
+				case "Game_start":
+					break;
+				/*case "return":
+					manager.return_main(ID,this);
+					break;*/
 				/*case "private_msg":
 					break;*/
+				case "Game":
+					jsonData.append(Data);
+					
+					GameModel gameModel = gson.fromJson(jsonData.toString(), GameModel.class);
+
+					for (int i = 0; i < gameCalculator.getGameModelForCalculator().size(); i++) {
+						if (gameCalculator.getGameModelForCalculator().get(i).getPlayer().getStz_username()
+								== ID) {
+							gameCalculator.getGameModelForCalculator().get(i).getPlayer()
+									.setAngle(gameModel.getPlayer().getAngle());
+							gameCalculator.getGameModelForCalculator().get(i).getPlayer()
+									.setStz_username(gameModel.getPlayer().getStz_username());
+							gameCalculator.getGameModelForCalculator().get(i).getPlayer()
+									.setX(gameModel.getPlayer().getX());
+							gameCalculator.getGameModelForCalculator().get(i).getPlayer()
+									.setY(gameModel.getPlayer().getY());
+							gameCalculator.getGameModelForCalculator().get(i)
+									.setBulletList(gameModel.getBulletList());
+						}
+					}
+					jsonData.setLength(0);
+					break;	
 				default :
 					break;
 				}
