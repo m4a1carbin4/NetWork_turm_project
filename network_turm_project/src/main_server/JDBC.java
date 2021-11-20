@@ -23,8 +23,8 @@ public class JDBC {
 	public JDBC() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://localhost/game_db";
-			conn = DriverManager.getConnection(url, "root", "youareadie2!A");
+			String url = "jdbc:mysql://gcckim2020.kro.kr:3306/game_db";
+			conn = DriverManager.getConnection(url, "root", "12345");
 
 			System.out.println("[JDBC] Connected with: " + url);
 		} catch (ClassNotFoundException e) {
@@ -46,6 +46,20 @@ public class JDBC {
 		}
 	}
 	
+	public static String date() {
+		LocalDate now = LocalDate.now();
+		LocalTime time = LocalTime.now();
+		
+		Formatter fm = new Formatter();
+		fm.format("%02d-%02d-%02d", now.getYear(), now.getMonthValue(), now.getDayOfMonth());
+		DateTimeFormatter datefm = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+		String date = fm.toString() + " " + time.format(datefm);
+		fm.close();
+		
+		return date;
+	}
+	
 	public static String Login(String data) {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;
@@ -64,33 +78,41 @@ public class JDBC {
 		
 		Statement stmt = null;
 		ResultSet rs = null;
+		
+		String date = date();
 
 		try {
-			stmt = conn.createStatement();
-			String sql = "SELECT * FROM PLAYER WHERE USER_ID = '" + id + "'"
-					+ " AND PASSWORD = hex(aes_encrypt('" + pw
-					+ "', 'team2'))";
-
-			rs = stmt.executeQuery(sql);
+			String sql = "UPDATE player\n"
+					+ "SET connection = true,\n"
+					+ "con_date = ?"
+					+ "WHERE connection = false AND\n"
+					+ "user_id = ? AND\n"
+					+ "password = hex(aes_encrypt(?, 'team2'))";
 			
-			if (rs.next()) {
-				obj.put("ID", rs.getInt(1));
-				//obj.put("USER_ID", rs.getString(2));
-				//obj.put("PW", rs.getString(3));
-				obj.put("USER_TYPE", rs.getString(4));
-				
-				obj.put("NAME", rs.getString(5));
-				obj.put("NNAME", rs.getString(6));
-				obj.put("EMAIL", rs.getString(7));
-				obj.put("PSITE", rs.getString(8));
+			var pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, date);
+			pstmt.setString(2, id);
+			pstmt.setString(3, pw);
+			int count = pstmt.executeUpdate();
+			
+			if (count != 0) {
+				stmt = conn.createStatement();
+				sql = "SELECT * FROM PLAYER WHERE\n" 
+						+ "USER_ID = '" + id + "'";
 
-				obj.put("CONN", rs.getBoolean(9));
-				obj.put("CON_DATE", rs.getString(10)); // Last connection date
-				obj.put("ROOM_JOINING", rs.getInt(11));
-				
-				obj.put("WIN", rs.getInt(12));
-				obj.put("LOSS", rs.getInt(13));
-				
+				rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					obj.clear();
+					obj.put("ID", rs.getInt(1));
+					return obj.toJSONString();
+				}
+				else
+					return null;
+			}
+			else {
+				obj.clear();
+				obj.put("ID", -1);
+				obj.put("ERROR", "ALREADY_LOGINED");
 				return obj.toJSONString();
 			}
 		} catch (SQLException e) {
@@ -100,7 +122,31 @@ public class JDBC {
 		return null;
 	}
 	
-	public static boolean register(String data) {
+	public static boolean logout(int id) {
+		if (id < 0)
+			return false;
+		
+		try {
+			String sql = "UPDATE player\n"
+					+ "SET connection = false,\n"
+					+ "con_date = ?\n"
+					+ "WHERE id = ?";
+			
+			var pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, date());
+			pstmt.setInt(2, id);
+
+			int count = pstmt.executeUpdate();
+			if (count != 0)
+				return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+	
+	public static int register(String data) {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;
 		try {
@@ -136,7 +182,7 @@ public class JDBC {
 		try {
 			String sql = "INSERT INTO PLAYER VALUES(?, ?, hex(aes_encrypt(?, 'team2')), 1,"
 					+ "?, ?, ?, ?,"
-					+ "false, null, 0, 0, 0)";
+					+ "true, null, 0, 0, 0)";
 			pstmt = conn.prepareStatement(sql);
 
 			pstmt.setInt(1, id);
@@ -150,12 +196,12 @@ public class JDBC {
 
 			int count = pstmt.executeUpdate();
 			if (count != 0)
-				return true;
+				return id;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		return false;
+		return -1;
 	}
 	
 	public static boolean receivechat(String data) {
@@ -169,15 +215,8 @@ public class JDBC {
 		
 		if (obj == null)
 			return false;
-		
-		LocalDate now = LocalDate.now();
-		LocalTime time = LocalTime.now();
-		
-		Formatter fm = new Formatter();
-		fm.format("%02d-%02d-%02d", now.getYear(), now.getMonthValue(), now.getDayOfMonth());
-		DateTimeFormatter datefm = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-		String date = fm.toString() + " " + time.format(datefm);
+		String date = date();
 		String context = (String)obj.get("Data");
 		
 		PreparedStatement pstmt = null;

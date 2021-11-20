@@ -6,6 +6,7 @@ import starz502Server.dao.ResultModelDAO;
 import game_server.GameModel;
 import game_server.ResultModel;
 
+
 public class GameCalculator { // 게임 연산 모듈은 하나만 존재해야하기때문에 싱글톤으로 작성
 	private Vector<GameModel> gameModelForCalculator;
 	private Vector<ResultModel> resultModelList;

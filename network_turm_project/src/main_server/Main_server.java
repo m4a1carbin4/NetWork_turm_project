@@ -66,6 +66,7 @@ public class Main_server {
 		
 		if(socket_list.remove(thread)) {
 			System.out.println("client removed.");
+			JDBC.logout(thread.ID);
 			return true;
 		}else {
 			System.out.println("client removed fail");
@@ -76,20 +77,27 @@ public class Main_server {
 	}
 	
 	public synchronized int Login_request(String data,Client_socket socket) {
-		
+
 		data = JDBC.Login(data);
-		if(data != null) {
-			manager.client_access(data, socket);
+		if (data != null) {
 			try {
 				tmp = (JSONObject) parser.parse(data);
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				System.out.println("parser_fail");
 			}
-			socket.clear_login();
-			return ((Long)tmp.get("ID")).intValue();
+			
+			if (tmp.get("ERROR") != null) {
+				socket.Fail_login((String)tmp.get("ERROR"));
+				return -1;
+			}
+
+			int id = ((Long)tmp.get("ID")).intValue();
+			manager.client_access(id, socket);
+			socket.clear_login(id);
+			return id;
 		}else {
-			socket.Fail_login();
+			socket.Fail_login("Invalid ID or Password.");
 			return -1;
 		}
 		
@@ -97,11 +105,11 @@ public class Main_server {
 	
 	public synchronized void regiester_request(String data,Client_socket socket) {
 		
-		Boolean result = JDBC.register(data);
-		if(result) {
-			socket.clear_login();
-		}else {
-			socket.Fail_login();
+		int result = JDBC.register(data);
+		if (result != -1) {
+			socket.clear_login(result);
+		} else {
+			socket.Fail_login("Unable to register for these data.");
 		}
 		
 	}

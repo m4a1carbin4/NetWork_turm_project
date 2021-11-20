@@ -41,7 +41,7 @@ public class Client_socket extends Thread {
 	
 	private Gson gson;
 	
-	int ID;
+	int ID = -1;
 	
 	public JSONObject Json_parser(String data) {
 		
@@ -71,19 +71,21 @@ public class Client_socket extends Thread {
 		
 	}
 	
-	public void Fail_login() {
+	public void Fail_login(String reason) {
 		
 		try {
-			dataoutputstream.writeUTF(Json_maker("fail","Login_fail"));
+			dataoutputstream.writeUTF(Json_maker(reason, "Login_fail"));
 		} catch (IOException e) {
 			System.out.println("login_fail_system_fail");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
-	public void clear_login() {
+	public void clear_login(int id) {
 		
 		try {
-			dataoutputstream.writeUTF(Json_maker("clear","Login_clear"));
+			dataoutputstream.writeUTF(Json_maker(String.valueOf(id),"Login_clear"));
 		} catch (IOException e) {
 			System.out.println("login_clear");
 		}
