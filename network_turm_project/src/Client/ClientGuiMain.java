@@ -1,6 +1,5 @@
 package Client;
 
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -10,9 +9,10 @@ public class ClientGuiMain {
 			InetAddress ia = InetAddress.getLocalHost();
 			String ip_str = ia.toString();
 			String ip = ip_str.substring(ip_str.indexOf("/") + 1);
-			 new ClientGui(ip, 9647);
+			new MainFrame(ip, 9647);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
 }
+ 

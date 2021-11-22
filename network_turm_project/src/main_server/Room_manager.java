@@ -2,6 +2,7 @@ package main_server;
 
 
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,7 +24,7 @@ public class Room_manager {
 	
 	public Boolean Make_Room(Client_socket user,String Room_name ,int ID) {
 		
-		if(Room_list.get(Room_name) != null) {
+		if(Room_list.get(Room_name) == null) {
 			
 			Room new_room = new Room(this,server);
 			Room_list.put(Room_name, new_room);
@@ -52,15 +53,16 @@ public class Room_manager {
 	
 	public Boolean Make_G_Room(Client_socket user,String Room_name ,int ID) {
 		
-		if(Room_listG.get(Room_name) != null) {
+		if(Room_listG.get(Room_name) == null) {
 			
 			G_Room new_room = new G_Room(this,server);
 			Room_listG.put(Room_name, new_room);
-			new_room.add_user(user, ID);
-			user.send_message("new_G_Room has been made.");
+			new_room.add_user(user, ID, user.user_lobby);
+			user.Room_clear();
 			
 			return true;
 		}else {
+			user.Room_fail();
 			return false;
 		}
 		
@@ -70,12 +72,41 @@ public class Room_manager {
 		G_Room tmp = Room_listG.get(Room_name);
 		
 		if(tmp != null) {
-			tmp.add_user(user, ID);
-			user.send_message("System : success Join the "+Room_name+".");
+			tmp.add_user(user, ID,user.user_lobby);
+			System.out.println("System : success Join the "+Room_name+".");
+			user.Room_clear();
 			return true;
 		}else {
-			user.send_message("System : fail Join the "+Room_name+".");
+			System.out.println("System : fail Join the "+Room_name+".");
+			user.Room_fail();
 			return false;
+		}
+	}
+	
+	public void brodcast_lobby(String Room_name) {
+		
+		G_Room tmp = Room_listG.get(Room_name);
+		
+		tmp.brodcast_lobby();
+		
+	}
+	
+	/*public void send_data(String Room_name) {
+		
+		G_Room tmp = Room_listG.get(Room_name);
+		
+		tmp.send_data();
+		
+	}*/
+	
+	public void start_request(String Room_name,ScheduledExecutorService service) {
+		
+		G_Room tmp = Room_listG.get(Room_name);
+		
+		Boolean result = tmp.start_request();
+		
+		if(result) {
+			tmp.start_game(service);
 		}
 	}
 	
@@ -91,6 +122,8 @@ public class Room_manager {
 		}
 		
 	}
+	
+	
 	public Boolean Del_room(String Room_name,int i) {
 		
 		G_Room tmp = Room_listG.get(Room_name);

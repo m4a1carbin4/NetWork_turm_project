@@ -2,6 +2,12 @@ package main_server;
 
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
+import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -10,7 +16,6 @@ import org.json.simple.parser.ParseException;
 import com.google.gson.Gson;
 
 import game_calculator.GameCalculator;
-import game_server.GameModel;
 
 public class Client_socket extends Thread {
 
@@ -28,6 +33,8 @@ public class Client_socket extends Thread {
 	
 	GameCalculator gameCalculator = null;
 	
+	private ScheduledExecutorService service;
+	
 	String Threadname;
 	
 	String str;
@@ -36,12 +43,15 @@ public class Client_socket extends Thread {
 	Client_manager manager;
 	Echo echo;
 	DataExportToAllClient game_echo;
+	String G_name_ptr;
+	
+	LobbyModelUser user_lobby = null;
 	
 	private StringBuilder jsonData = new StringBuilder();
 	
-	private Gson gson;
+	private Gson gson = new Gson();
 	
-	int ID;
+	int ID = -1;
 	
 	public JSONObject Json_parser(String data) {
 		
@@ -71,19 +81,24 @@ public class Client_socket extends Thread {
 		
 	}
 	
-	public void Fail_login() {
+	public void Fail_login(String reason) {
 		
 		try {
-			dataoutputstream.writeUTF(Json_maker("fail","Login_fail"));
+			dataoutputstream.writeUTF(Json_maker(reason, "Login_fail"));
 		} catch (IOException e) {
 			System.out.println("login_fail_system_fail");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
-	public void clear_login() {
+	public void clear_login(int id) {
 		
 		try {
-			dataoutputstream.writeUTF(Json_maker("clear","Login_clear"));
+			dataoutputstream.writeUTF(Json_maker(String.valueOf(id),"Login_clear"));
+			int WIN = JDBC.WIN_check(ID);
+			int LOSE = JDBC.LOSE_check(ID);
+			user_lobby = new LobbyModelUser(ID, WIN,LOSE,"0","on");
 		} catch (IOException e) {
 			System.out.println("login_clear");
 		}
@@ -104,6 +119,28 @@ public class Client_socket extends Thread {
 			dataoutputstream.writeUTF(Json_maker("fail","Regiester_fail"));
 		} catch (IOException e) {
 			System.out.println("register_fail");
+		}
+	}
+	
+	public void Room_clear() {
+		String str = Json_maker("clear","R_clear");
+		
+		try {
+			dataoutputstream.writeUTF(str);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("server_Room_clear_send_fail");
+		}
+	}
+	
+	public void Room_fail() {
+		String str = Json_maker("fail","R_fail");
+		
+		try {
+			dataoutputstream.writeUTF(str);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("server_Room_clear_send_fail");
 		}
 	}
 	
@@ -137,6 +174,32 @@ public class Client_socket extends Thread {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("server_Game_start_send_fail");
+		}
+	}
+	
+	public void lobby_echo(String input) {
+		String str = Json_maker(input,"lobby_echo");
+		
+		try {
+			dataoutputstream.writeUTF(str);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("server_Lobby_data_send_fail");
+		}
+	}
+	
+	public void send_lobbyuser() {
+		Gson gson = new Gson();
+		
+		String tmp = gson.toJson(user_lobby);
+		
+		String str = Json_maker(tmp,"lobby_echo");
+		
+		try {
+			dataoutputstream.writeUTF(str);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("server_Lobbyuser_send_fail");
 		}
 	}
 	
@@ -209,20 +272,25 @@ public class Client_socket extends Thread {
 				case "join_Room":
 					server.Join_Room(Data, this,ID);
 					break;
+				case "new_G_Room":
+					server.G_make_Room(Data, this,ID);
+					G_name_ptr = Data;
+					break;
+				case "join_G_Room":
+					server.G_Join_Room(Data, this,ID);
+					G_name_ptr = Data;
+					break;
 				case "return":
 					manager.return_main(ID,this);
 					break;
-				case "Game_start":
+				case "Game_start_request":
+					 server.R_manager.start_request(G_name_ptr,service);
 					break;
-				/*case "return":
-					manager.return_main(ID,this);
-					break;*/
 				/*case "private_msg":
 					break;*/
 				case "Game":
-					jsonData.append(Data);
 					
-					GameModel gameModel = gson.fromJson(jsonData.toString(), GameModel.class);
+					GameModel gameModel = gson.fromJson(Data, GameModel.class);
 
 					for (int i = 0; i < gameCalculator.getGameModelForCalculator().size(); i++) {
 						if (gameCalculator.getGameModelForCalculator().get(i).getPlayer().getStz_username()
@@ -239,8 +307,21 @@ public class Client_socket extends Thread {
 									.setBulletList(gameModel.getBulletList());
 						}
 					}
-					jsonData.setLength(0);
+					
+					//server.R_manager.send_data(G_name_ptr);
+					
 					break;	
+					
+				case "lobby":
+					this.send_lobbyuser();
+					server.R_manager.brodcast_lobby(G_name_ptr);
+					break;
+				case "ready":
+					user_lobby.setStz_ready(Data);
+					server.R_manager.brodcast_lobby(G_name_ptr);
+					server.R_manager.start_request(G_name_ptr,service);
+					break;
+					
 				default :
 					break;
 				}

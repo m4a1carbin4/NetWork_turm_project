@@ -8,18 +8,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import game_calculator.GameCalculator;
-import game_server.Bullet;
-import game_server.GameModel;
-import game_server.GameModelList;
-import game_server.Player;
 
-public class DataExportToAllClient extends Thread { 
+public class DataExportToAllClient extends Thread{ 
 	
 	private HashMap<Integer,Client_socket> client_list = null;
 	private Vector<Client_socket> clientList = null;
@@ -27,17 +24,40 @@ public class DataExportToAllClient extends Thread {
 	private GameCalculator gameCalculator = null;
 	private ScheduledExecutorService service;
 
-	public DataExportToAllClient(HashMap<Integer,Client_socket> c_list) {
+	public DataExportToAllClient(HashMap<Integer,Client_socket> c_list,ScheduledExecutorService service) {
 		this.client_list = c_list;
-		this.clientList = (Vector<Client_socket>) c_list.values();
+		
+		Vector<Client_socket> ptr = new Vector<Client_socket>();
+		
+		for(Client_socket i : client_list.values()) {
+			ptr.add(i);
+		}
+		
+		this.clientList = ptr;
 		this.gameCalculator = new GameCalculator();
+		this.service = service;
+		export_start();
 	}
 	
-	public void getcal(Client_socket user) {
+	public synchronized void export_start() {
+		for(Client_socket tmp : client_list.values()) {
+			getcal(tmp);
+		}
+		Vector<Integer> ptr = new Vector<Integer>();
+		
+		for(Integer i : client_list.keySet()) {
+			ptr.add(i);
+		}
+		
+		startDataToReadyClient(ptr);
+		
+	}
+	
+	public synchronized void getcal(Client_socket user) {
 		user.game_cal_set(gameCalculator);
 	}
 
-	public void startDataToReadyClient(Vector<Integer> readyClientList) {
+	public synchronized void startDataToReadyClient(Vector<Integer> readyClientList) {
 		
 		gameCalculator.getGameModelForCalculator().setSize(0);
 		for (int i = 0; i < readyClientList.size(); i++) {
@@ -51,19 +71,14 @@ public class DataExportToAllClient extends Thread {
 
 			gameCalculator.getGameModelForCalculator().add(readyClient);
 		}
-
-		for (int readyClientUserName : readyClientList) {
-			
-			for (Client_socket client : client_list.values()) {
-				if (readyClientUserName == client.ID) {
-					client.Game_start("game_start_now");
-				}
-			}
+		
+		for (Client_socket client : client_list.values()) {				
+			client.Game_start("start");
 		}
 
 		// run() 0초 후에 34ms마다 실행
 		service = Executors.newSingleThreadScheduledExecutor();
-		service.scheduleAtFixedRate(this, 0, 34, TimeUnit.MILLISECONDS);
+		service.scheduleAtFixedRate(this, 0, 70, TimeUnit.MILLISECONDS);
 
 	}
 
@@ -79,14 +94,16 @@ public class DataExportToAllClient extends Thread {
 
 	// 모든 클라이언트에게 (그림 그리는데 필요한 모든)데이터 전송하는 스레드 , period : 34ms
 
-	@Override
 	public void run() {
 
 		gameCalculator.calPlayerHitByBullet(); // 피격 판정 함수
 		GameModelList gameModelList = new GameModelList(gameCalculator.getGameModelForCalculator());
 
 		for (Client_socket client : client_list.values()) {
-			client.Game_model_msg(gson.toJson(gameModelList));
+			String tmp = gson.toJson(gameModelList);
+			
+			client.Game_model_msg(tmp);
+			System.out.println(tmp);
 		}
 
 		for (int i = 0; i < gameModelList.getGameModelList().size(); i++) {

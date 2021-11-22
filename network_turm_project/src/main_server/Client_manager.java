@@ -18,7 +18,6 @@ public class Client_manager{
 	HashMap<Integer,Client_socket> client_list = null;	
 	Socket socket;
 	Echo echo;
-	DataExportToAllClient game_echo;
 	int user_num = 0;
 	
 	JSONParser parser = new JSONParser();
@@ -45,7 +44,6 @@ public class Client_manager{
 		Home = orgin;
 		this.groom = g_Room;
 		client_list = new HashMap<Integer,Client_socket>();
-		game_echo = new DataExportToAllClient(client_list);
 	}
 
 	public Boolean client_access(String data,Client_socket user) {
@@ -86,10 +84,6 @@ public class Client_manager{
 	
 	public Boolean Echo_change(Client_socket user) {
 		user.echo_change(echo);
-		return true;
-	}
-	public Boolean Echo_change_G(Client_socket user) {
-		user.echo_change(game_echo);
 		return true;
 	}
 	
