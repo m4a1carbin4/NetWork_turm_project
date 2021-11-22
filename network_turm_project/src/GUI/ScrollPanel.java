@@ -218,8 +218,6 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 			vertical.setValue(0);
 		}
 		
-		System.out.println("...: " + maxx + ", " + maxy);
-		
 		mainPanel.setBounds(org_x, org_y, wide, tall);
 		replaceComponents();
 	}
