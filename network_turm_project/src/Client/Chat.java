@@ -18,6 +18,7 @@ import javax.swing.border.LineBorder;
 
 import GUI.ImagedButton;
 import GUI.ImagedButton9;
+import GUI.ScrollPanel;
 import Json_Controller.Json_Controller;
 
 import javax.swing.JTextField;
@@ -115,10 +116,16 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		case "Channel":
 			var cs = listPanel.getComponents();
 			for (int i = 0; i < cs.length; i++) {
-				if (cs[i] instanceof ImagedButton9) {
-					var imgbtn = (ImagedButton9)cs[i];
-					if (!args[1].contentEquals(imgbtn.getText()))
-						imgbtn.setEnabled(true);
+				if (cs[i] instanceof ScrollPanel) {
+					cs = ((ScrollPanel)cs[i]).getComponents();
+					for (i = 0; i < cs.length; i++) {
+						if (cs[i] instanceof ImagedButton9) {
+							var imgbtn = (ImagedButton9)cs[i];
+							if (!args[1].contentEquals(imgbtn.getText()))
+								imgbtn.setEnabled(true);
+						}
+					}
+					break;
 				}
 			}
 			((ImagedButton9)e.getSource()).setEnabled(false);
@@ -160,22 +167,28 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		
 		if (playerList == null)
 			playerList = new ArrayList<String>();
+		
+		var scpanel = new ScrollPanel(false, false);
+		scpanel.setBounds(0, 0, 120, this.t - 50);
+		scpanel.setBorder(new LineBorder(Color.BLACK, 1, true));
+		scpanel.setScrollValue(3);
+		listPanel.add(scpanel);
 
 		int y = 10;
 		var all9 = new ImagedButton9(this, "ALL", "gui/imagedbutton9/button", "Channel #HERE");
-		all9.setBounds(10, y, 100, 30);
+		all9.setBounds(20, y, 80, 30);
 		all9.setVisible(true);
 		all9.setEnabled(false);
-		listPanel.add(all9);
+		scpanel.add(all9);
 		
 		var iter = playerList.iterator();
 		while (iter.hasNext()) {
 			var name = iter.next();
 			y += 40;
 			all9 = new ImagedButton9(this, name, "gui/imagedbutton9/button", "Channel " + name);
-			all9.setBounds(10, y, 100, 30);
+			all9.setBounds(20, y, 80, 30);
 			all9.setVisible(true);
-			listPanel.add(all9);
+			scpanel.add(all9);
 		}
 		
 		var addbtn = new ImagedButton9(this, "New Chat", "gui/imagedbutton9/button", "Add");
@@ -218,20 +231,26 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		prev.setBounds(20, this.t - 41, 80, 30);
 		listPanel.add(prev);
 		
+		var scpanel = new ScrollPanel(false, false);
+		scpanel.setBounds(0, 0, 120, this.t - 50);
+		scpanel.setBorder(new LineBorder(Color.BLACK, 1, true));
+		scpanel.setScrollValue(3);
+		listPanel.add(scpanel);
+		
 		if (result.length() == 0) {
 			var none = new JLabel("There is no user.");
 			none.setBounds(10, 10, 100, 30);
-			listPanel.add(none);
+			scpanel.add(none);
 			listPanel.repaint();
 			return;
 		}
-		
+
 		var names = result.split(";");
 
 		int y = 10;
 		for (int i = 0; i < names.length; i++) {
 			var all9 = new ImagedButton9(this, names[i], "gui/imagedbutton9/button", "Whisper " + names[i]);
-			all9.setBounds(10, y, 100, 30);
+			all9.setBounds(20, y, 80, 30);
 			all9.setVisible(true);
 			
 			int j;
@@ -240,7 +259,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 					break;
 			
 			all9.setEnabled(j == playerList.size());
-			listPanel.add(all9);
+			scpanel.add(all9);
 			
 			y += 40;
 		}
@@ -291,7 +310,6 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 				try { Thread.sleep(10);} catch (Exception e) { e.printStackTrace(); }
 			}
 			target.setVisible(false);
-			((MainFrame)target.parent).actionPerformed(new ActionEvent(target, 0, "ChatIcon"));
 		}
 	}
 

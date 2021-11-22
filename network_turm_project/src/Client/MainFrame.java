@@ -164,19 +164,19 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 		    setLocation((resolution.width - main_size[0]) / 2, (resolution.height - main_size[1]) / 2);
 		    setSize(main_size[0], main_size[1]);
 		    
-		    var chatbtn = new ImagedButton9(this, "Chat", "gui/imagedbutton9/button", "OpenChat");
-		    chatbtn.setBounds(main_size[0] - 130, main_size[1] - 120, 60, 30);
-		    chatbtn.setVisible(true);
-		    container.add(chatbtn);
-		    
 		    chat = new Chat(this, main_size[0] - 440, main_size[1] - 350, 400, 300);
 		    chat.setVisible(false);
 		    container.add(chat);
 		    
-		    var exitbtn = new ImagedButton9(this, "Exit", "gui/imagedbutton9/button");
-		    exitbtn.setBounds(main_size[0] - 200, main_size[1] - 120, 60, 30);
+		    var exitbtn = new ImagedButton9(this, "Exit", "gui/imagedbutton9_red/button");
+		    exitbtn.setBounds(main_size[0] - 130, main_size[1] - 120, 60, 30);
 		    exitbtn.setVisible(true);
 		    container.add(exitbtn);
+		    
+		    var chatbtn = new ImagedButton9(this, "Chat", "gui/imagedbutton9/button", "OpenChat");
+		    chatbtn.setBounds(main_size[0] - 200, main_size[1] - 120, 60, 30);
+		    chatbtn.setVisible(true);
+		    container.add(chatbtn);
 		    
 		    var room_create = new ImagedButton9(this, "Create Room", "gui/imagedbutton9/button");
 		    room_create.setBounds(main_size[0] - 300, main_size[1] - 120, 90, 30);
@@ -300,18 +300,6 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 				return;
 			
 			this.chat.appear();
-			((ImagedButton9)e.getSource()).setVisible(false);
-			break;
-		case "ChatIcon":
-			var cs = container.getComponents();
-			for (int i = 0; i < cs.length; i++) {
-				if (cs[i] instanceof ImagedButton9) {
-					var imgb = (ImagedButton9)cs[i];
-					if (imgb.getText().contentEquals("Chat")) {
-						imgb.setVisible(true);
-					}
-				}
-			}
 			break;
 		case "SendChat":
 			var text = ((JTextField)e.getSource()).getText();
