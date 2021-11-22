@@ -14,18 +14,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 
 public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWheelListener {
-	private JScrollBar horizontal = null;
-	private JScrollBar vertical = null;
+	protected JScrollBar horizontal = null;
+	protected JScrollBar vertical = null;
 	
 	private JPanel mainPanel = null;
 
-	private boolean vshow = false;
-	private boolean hshow = false;
+	protected boolean vshow = false;
+	protected boolean hshow = false;
 
 	private int scroll_value = 1;
-	private int org_x, org_y;
-	private int adjust_x, adjust_y;
-	private int move_w, move_t;
+	protected int org_x, org_y;
+	protected int adjust_x, adjust_y;
+	protected int move_w, move_t;
 
 	public ScrollPanel(boolean vertical, boolean horizontal) {
 		super();
@@ -95,6 +95,13 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		Calc();
 	}
 	
+	public void add(JComponent c, boolean calc) {
+		mainPanel.add(c);
+		
+		if (calc)
+			Calc();
+	}
+	
 	public void remove(JComponent c) {
 		mainPanel.remove(c);
 		Calc();
@@ -153,11 +160,10 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		d.width -= 8;
 		d.height -= 8;
 		
-		int delx = 0, dely = 0;
+		int maxx = 0, maxy = 0;
 		
 		if (d.width < wide) {
-			delx = wide - d.width;
-			move_w = delx / d.width * 6;
+			maxx = wide / d.width + 1;
 
 			if (min_x < 0) {
 				adjust_x = -min_x / move_w;
@@ -167,8 +173,7 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		}
 
 		if (d.height < tall) {
-			dely = tall - d.height;
-			move_t = dely / d.height * 6;
+			maxy = tall / d.height + 1;
 
 			if (min_y < 0) {
 				adjust_y = -min_y / move_t;
@@ -177,15 +182,13 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 			}
 		}
 
-		if (move_w > 0) {
-			int max = delx / move_w;
-			if (wide % move_w != 0)
-				max++;
+		if (maxx > 0) {
+			move_w = (int)((double)wide / maxx);
 			
-			if (max > 0) {
+			if (maxx > 0) {
 				horizontal.setVisible(true);
 				horizontal.setMinimum(0);
-				horizontal.setMaximum(max);
+				horizontal.setMaximum(maxx);
 				horizontal.setValue(0);
 			}
 		}
@@ -196,21 +199,17 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 			horizontal.setValue(0);
 		}
 		
-		if (move_t > 0) {
-			if (move_w <= 0)
+		if (maxy > 0) {
+			move_t = (int)((double)tall / maxy);
+			if (maxx <= 0)
 				this.vertical.setBounds(d.width - 8, 0, 16, d.height + 16);
 			else
 				this.vertical.setBounds(d.width - 8, 0, 16, d.height);
-			int max = dely / move_t;
-			if (tall % move_t != 0)
-				max++;
 			
-			if (max > 0) {
-				vertical.setVisible(true);
-				vertical.setMinimum(0);
-				vertical.setMaximum(max);
-				vertical.setValue(0);
-			}
+			vertical.setVisible(true);
+			vertical.setMinimum(0);
+			vertical.setMaximum(maxy);
+			vertical.setValue(0);
 		}
 		else {
 			vertical.setVisible(vshow);
@@ -218,6 +217,8 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 			vertical.setMaximum(1);
 			vertical.setValue(0);
 		}
+		
+		System.out.println("...: " + maxx + ", " + maxy);
 		
 		mainPanel.setBounds(org_x, org_y, wide, tall);
 		replaceComponents();

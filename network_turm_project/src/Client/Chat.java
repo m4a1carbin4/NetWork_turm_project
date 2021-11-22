@@ -29,7 +29,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 	private final Object parent;
 	
 	private JPanel listPanel = null;
-	private JTextArea display = null;
+	private ChattingDialog display = null;
 	
 	public final int x, y, w, t;
 	
@@ -75,36 +75,10 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		input.addKeyListener(this);
 		add(input);
 		
-		var chatting = new ChattingDialog(32);
-		chatting.setBounds(125, 40, this.w - 130, this.t - 73);
-		chatting.setBorder(new LineBorder(Color.BLACK, 1, true));
-		add(chatting);
-
-		List<Hashtable<String, String>> a = new ArrayList<Hashtable<String, String>>();
-		Hashtable<String, String> t = new Hashtable<String, String>();
-		for (int i = 0; i < 16; i++) {
-			t.put("from", "Index " + i);
-			
-			String f = "";
-			for (int j = 0; j < i; j++)
-				f += "Repeating text test ";
-			
-			t.put("what", f);
-			a.add((Hashtable<String, String>)t.clone());
-		}
-		
-		chatting.readContent(a);
-		
-		t.put("from", "Whow");
-		t.put("what", "This is the last message appended");
-		chatting.append(t);
-		
-		/*
-		 * display = new JTextArea(); display.setEditable(false);
-		 * 
-		 * var scroll = new JScrollPane(display); scroll.setBounds(125, 40, this.w -
-		 * 130, this.t - 71); scroll.setBorder(null); add(scroll);
-		 */
+		display = new ChattingDialog(32);
+		display.setBounds(125, 40, this.w - 130, this.t - 73);
+		//display.setBorder(new LineBorder(Color.BLACK, 1, true));
+		add(display);
 	}
 	
 	public void appear() {
@@ -134,7 +108,15 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 			if (display == null)
 				return;
 
-			display.append((String)e.getSource() + "\n");
+			var t = new Hashtable<String, String>();
+			
+			String[] spl = ((String)e.getSource()).split(":");
+			System.out.println(spl[0] + spl[1]);
+			
+			t.put("from", spl[0]);
+			t.put("what", spl[1]);
+			
+			display.append(t);
 			break;
 		case "Channel":
 			var cs = listPanel.getComponents();

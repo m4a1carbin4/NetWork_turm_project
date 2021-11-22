@@ -2,6 +2,7 @@ package Client;
 
 import java.util.List;
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import javax.swing.JTextArea;
@@ -33,7 +34,7 @@ public class ChattingDialog extends ScrollPanel {
 			preservedText[i] = new JTextPane();
 			preservedText[i].setVisible(false);
 			preservedText[i].setBorder(line);
-			add(preservedText[i]);
+			add(preservedText[i], false);
 		}
 		
 		for (int i = preserve; i < max_content; i++) {
@@ -44,7 +45,7 @@ public class ChattingDialog extends ScrollPanel {
 	public void readContent(List<Hashtable<String, String>> value) {
 		if (value == null)
 			return;
-		
+
 		contextList = value.subList(0, value.size());
 		load();
 	}
@@ -63,16 +64,6 @@ public class ChattingDialog extends ScrollPanel {
 		}
 		
 		var line = new LineBorder(Color.BLACK, 1, true);
-		
-		for (int i = 0; i < size; i++) {
-			if (preservedText[i] != null)
-				continue;
-			
-			preservedText[i] = new JTextPane();
-			preservedText[i].setBorder(line);
-			preservedText[i].setVisible(false);
-			add(preservedText[i]);
-		}
 
 		int y = 5;
 		int w = this.getWidth() / 5 * 4;
@@ -90,15 +81,25 @@ public class ChattingDialog extends ScrollPanel {
 			if (text == null)
 				continue;
 			
-			preservedText[i].setText("");
+			id = i - 1;
 			
-			int fsize = preservedText[i].getFont().getSize();
+			if (preservedText[id] == null) {
+				preservedText[id] = new JTextPane();
+				preservedText[id].setBorder(line);
+				preservedText[id].setVisible(false);
+				add(preservedText[id], false);
+			}
+			
+			preservedText[id].setText("");
+			
+			int fsize = preservedText[id].getFont().getSize();
 			int tall = 6 * (fsize + 1);
-			
-			appendToPane(preservedText[i], sender + "\n\n", Color.MAGENTA);
-			appendToPane(preservedText[i], text, Color.BLACK);
-			preservedText[i].setBounds(5, y, w, tall);
-			preservedText[i].setVisible(true);
+
+			appendToPane(preservedText[id], "Message from ", Color.BLACK);
+			appendToPane(preservedText[id], sender + "\n\n", Color.MAGENTA);
+			appendToPane(preservedText[id], text, Color.BLACK);
+			preservedText[id].setBounds(5, y, w, tall);
+			preservedText[id].setVisible(true);
 			y += tall + 10;
 		}
 		
@@ -114,9 +115,18 @@ public class ChattingDialog extends ScrollPanel {
 	public void append(Hashtable<String, String> value) {
 		if (value == null)
 			return;
+		
+		if (contextList == null)
+			contextList = new ArrayList<Hashtable<String, String>>();
 
 		contextList.add(0, (Hashtable<String, String>)value.clone());
 		load();
+	}
+	
+	protected void Calc() {
+		super.Calc();
+		vertical.setValue(vertical.getMaximum());
+		horizontal.setValue(horizontal.getMaximum());
 	}
 	
 	private String breakLines(String str, int width, int size) {
@@ -143,7 +153,6 @@ public class ChattingDialog extends ScrollPanel {
 			}
 		}
 		
-		System.out.println("Compare:\n"+ str + "\nAND\n" + result + "-ends");
 		return result;
 	}
 	
