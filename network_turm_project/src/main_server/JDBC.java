@@ -24,9 +24,10 @@ public class JDBC {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			String url = "jdbc:mysql://gcckim2020.kro.kr:3306/game_db";
-			conn = DriverManager.getConnection(url, "root", "12345");
+			conn = DriverManager.getConnection(url, "game", "nwteamb");
 
-			System.out.println("[JDBC] Connected with: " + url);
+			if (conn != null)
+				System.out.println("[JDBC] Connected with: " + url);
 		} catch (ClassNotFoundException e) {
 			System.out.println("Cannot found the driver");
 		} catch (SQLException e) {
@@ -58,6 +59,86 @@ public class JDBC {
 		fm.close();
 		
 		return date;
+	}
+	
+	public static String getString(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public static int getInt(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return 0;
+	}
+	
+	public static double getDouble(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getDouble(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return 0.0;
+	}
+	
+	public static boolean getBool(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getBoolean(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
 	}
 	
 	public static String Login(String data) {
@@ -106,14 +187,20 @@ public class JDBC {
 					obj.put("ID", rs.getInt(1));
 					return obj.toJSONString();
 				}
-				else
-					return null;
 			}
 			else {
-				obj.clear();
-				obj.put("ID", -1);
-				obj.put("ERROR", "ALREADY_LOGINED");
-				return obj.toJSONString();
+				stmt = conn.createStatement();
+				sql = "SELECT * FROM PLAYER WHERE\n" 
+						+ "USER_ID = '" + id + "'\n"
+						+ "AND PASSWORD = hex(aes_encrypt('" + pw + "', 'team2'))";
+
+				rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					obj.clear();
+					obj.put("ID", -1);
+					obj.put("ERROR", "ALREADY_LOGINED");
+					return obj.toJSONString();
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

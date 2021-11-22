@@ -203,7 +203,7 @@ public class Client_socket extends Thread {
 					ID = server.Login_request(Data, this);
 					break;
 				case "Message":
-					echo.brodcast_message(Data);
+					echo.brodcast_message(Data, this);
 					break;
 				case "new_Room":
 					server.make_Room(Data, this,ID);
