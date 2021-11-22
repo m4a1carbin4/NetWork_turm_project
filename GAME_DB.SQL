@@ -1,7 +1,4 @@
 # ...
-# I tried using sql with port forwarding,
-# As I did not checked that it is work on other computer, it may not work on your computer.
-# In that case, try upload this on your computer and join in localhost(change the addr 192.168.65.165:3306 to localhost:3306).
 
 DROP DATABASE GAME_DB;
 CREATE DATABASE GAME_DB;
@@ -44,6 +41,19 @@ CONTEXT VARCHAR(500),
 FOREIGN KEY (TARGET) REFERENCES PLAYER(USER_ID) ON DELETE CASCADE);
 # Forcely expire a report since user data is not exists.
 
+# A Table for saving data of room
+CREATE TABLE ROOM (
+ID INT PRIMARY KEY,
+TIME_CREATED DATE NOT NULL,
+TIME_DELETED DATE NOT NULL);
+
+# A Table for saving data of room history of user
+CREATE TABLE ROOM_HISTORY (
+ID INT UNIQUE KEY NOT NULL,
+TIME_JOINED DATE NOT NULL,
+TIME_EXITED DATE NOT NULL,
+FOREIGN KEY (ID) REFERENCES PLAYER(ID));
+
 # A View for accessing personal data
 CREATE VIEW PLAYER_DATA AS
 SELECT ID, USER_ID, NAME, NICKNAME, EMAIL, PRIVATE_SITE
@@ -51,7 +61,7 @@ FROM PLAYER;
 
 # A View for accessing player status
 CREATE VIEW PLAYER_STAT AS
-SELECT NICKNAME, CONNECTION, CON_DATE, WIN, LOSS
+SELECT NICKNAME, CONNECTION, CON_DATE, ROOM_JOINING, WIN, LOSS
 FROM PLAYER;
 
 # Insert a data of administrator
@@ -60,12 +70,19 @@ INSERT INTO PLAYER VALUES (
 "Admin", "Administrator", "nw_teamb@gachon.ac.kr", "https://www.gachon.ac.kr/",
 false, null, 0, 0, 0);
 
-# Note: recent status of game_db on 211108:
-# +----+---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
-# | ID | USER_ID       | PASSWORD                                                         | USER_TYPE | NAME  | NICKNAME      | EMAIL                 | PRIVATE_SITE              | CONNECTION | CON_DATE | ROOM_JOINING | WIN  | LOSS |
-# +----+---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
-# |  0 | administrator | 641E1C537965796F5D26A047486D865C231E76455D938F7B23A78F45E1947080 |         0 | Admin | Administrator | nw_teamb@gachon.ac.kr | https://www.gachon.ac.kr/ |          0 | NULL     |            0 |    0 |    0 |
-# +----+---------------+------------------------------------------------------------------+-----------+-------+---------------+-----------------------+---------------------------+------------+----------+--------------+------+------+
-# Other tables are all empty.
+INSERT INTO PLAYER VALUES (
+1, "kimkyeongmin", hex(aes_encrypt("kimkimkim", "team2")), 0,
+"KyeongMin Kim", "Kim", "k001202@gachon.ac.kr", NULL,
+false, null, 0, 0, 0);
+
+INSERT INTO PLAYER VALUES (
+2, "test1", hex(aes_encrypt("test", "team2")), 0,
+"Temp", "Temp1", "k001202@gachon.ac.kr", NULL,
+false, null, 0, 0, 0);
+
+INSERT INTO PLAYER VALUES (
+3, "test2", hex(aes_encrypt("test", "team2")), 0,
+"Temp", "Temp2", "k001202@gachon.ac.kr", NULL,
+false, null, 0, 0, 0);
 
 COMMIT;
