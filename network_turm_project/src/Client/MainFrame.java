@@ -178,7 +178,7 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 		    chatbtn.setVisible(true);
 		    container.add(chatbtn);
 		    
-		    var room_create = new ImagedButton9(this, "Create Room", "gui/imagedbutton9/button");
+		    var room_create = new ImagedButton9(this, "Create Room", "gui/imagedbutton9/button", "Room");
 		    room_create.setBounds(main_size[0] - 300, main_size[1] - 120, 90, 30);
 		    room_create.setVisible(true);
 		    container.add(room_create);
@@ -316,6 +316,9 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			break;
+		case "Room":
+			
 			break;
 		case "Exit":
 			System.exit(0);

@@ -6,7 +6,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -29,7 +31,6 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 	private JPanel listPanel = null;
 	private JTextArea display = null;
 	
-	private final int numline;
 	public final int x, y, w, t;
 	
 	private boolean valid = false;
@@ -51,7 +52,6 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		this.setBackground(Color.WHITE);
 		
 		setBounds(x, y, w, t);
-		numline = t / 30;
 		
 		valid = true;
 		initialize();
@@ -75,13 +75,36 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		input.addKeyListener(this);
 		add(input);
 		
-		display = new JTextArea();
-		display.setEditable(false);
+		var chatting = new ChattingDialog(32);
+		chatting.setBounds(125, 40, this.w - 130, this.t - 73);
+		chatting.setBorder(new LineBorder(Color.BLACK, 1, true));
+		add(chatting);
+
+		List<Hashtable<String, String>> a = new ArrayList<Hashtable<String, String>>();
+		Hashtable<String, String> t = new Hashtable<String, String>();
+		for (int i = 0; i < 16; i++) {
+			t.put("from", "Index " + i);
+			
+			String f = "";
+			for (int j = 0; j < i; j++)
+				f += "Repeating text test ";
+			
+			t.put("what", f);
+			a.add((Hashtable<String, String>)t.clone());
+		}
 		
-		var scroll = new JScrollPane(display);
-		scroll.setBounds(125, 40, this.w - 130, this.t - 71);
-		scroll.setBorder(null);
-		add(scroll);
+		chatting.readContent(a);
+		
+		t.put("from", "Whow");
+		t.put("what", "This is the last message appended");
+		chatting.append(t);
+		
+		/*
+		 * display = new JTextArea(); display.setEditable(false);
+		 * 
+		 * var scroll = new JScrollPane(display); scroll.setBounds(125, 40, this.w -
+		 * 130, this.t - 71); scroll.setBorder(null); add(scroll);
+		 */
 	}
 	
 	public void appear() {
@@ -117,7 +140,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 			var cs = listPanel.getComponents();
 			for (int i = 0; i < cs.length; i++) {
 				if (cs[i] instanceof ScrollPanel) {
-					cs = ((ScrollPanel)cs[i]).getComponents();
+					cs = ((ScrollPanel)cs[i]).getSubComponents();
 					for (i = 0; i < cs.length; i++) {
 						if (cs[i] instanceof ImagedButton9) {
 							var imgbtn = (ImagedButton9)cs[i];
@@ -176,17 +199,18 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 
 		int y = 10;
 		var all9 = new ImagedButton9(this, "ALL", "gui/imagedbutton9/button", "Channel #HERE");
-		all9.setBounds(20, y, 80, 30);
+		all9.setBounds(16, y, 80, 30);
 		all9.setVisible(true);
 		all9.setEnabled(false);
 		scpanel.add(all9);
 		
 		var iter = playerList.iterator();
 		while (iter.hasNext()) {
-			var name = iter.next();
 			y += 40;
+			
+			var name = iter.next();
 			all9 = new ImagedButton9(this, name, "gui/imagedbutton9/button", "Channel " + name);
-			all9.setBounds(20, y, 80, 30);
+			all9.setBounds(16, y, 80, 30);
 			all9.setVisible(true);
 			scpanel.add(all9);
 		}
@@ -250,7 +274,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		int y = 10;
 		for (int i = 0; i < names.length; i++) {
 			var all9 = new ImagedButton9(this, names[i], "gui/imagedbutton9/button", "Whisper " + names[i]);
-			all9.setBounds(20, y, 80, 30);
+			all9.setBounds(16, y, 80, 30);
 			all9.setVisible(true);
 			
 			int j;

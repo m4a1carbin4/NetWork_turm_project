@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -15,13 +16,14 @@ import javax.swing.JScrollBar;
 public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWheelListener {
 	private JScrollBar horizontal = null;
 	private JScrollBar vertical = null;
+	
+	private JPanel mainPanel = null;
 
 	private boolean vshow = false;
 	private boolean hshow = false;
 
-	HashMap<JComponent, Rectangle> posList = null;
-
 	private int scroll_value = 1;
+	private int org_x, org_y;
 	private int adjust_x, adjust_y;
 	private int move_w, move_t;
 
@@ -35,17 +37,28 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 
 		this.horizontal.setVisible(horizontal);
 		this.vertical.setVisible(vertical);
+		
+		mainPanel = new JPanel();
+		mainPanel.setLayout(null);
+		mainPanel.setBackground(Color.WHITE);
 
 		super.add(this.horizontal);
 		super.add(this.vertical);
+		super.add(mainPanel);
 
 		this.vertical.addAdjustmentListener(this);
 		this.horizontal.addAdjustmentListener(this);
 		this.addMouseWheelListener(this);
 
-		move_w = move_t = 0;
-		
-		posList = new HashMap<JComponent, Rectangle>();
+		org_x = org_y = move_w = move_t = 0;
+	}
+	
+	public int getSubComponentCount() {
+		return mainPanel.getComponentCount();
+	}
+	
+	public Component[] getSubComponents() {
+		return mainPanel.getComponents();
 	}
 	
 	public void setBounds(Rectangle d) {
@@ -57,6 +70,9 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 
 		this.vertical.setBounds(x + w - 16, 0, 16, t - 16);
 		this.horizontal.setBounds(0, t - 16, w, 16);
+		mainPanel.setBounds(x + 4, y + 4, w - 4, t - 4);
+		org_x = 4;
+		org_y = 4;
 		Calc();
 	}
 	
@@ -71,30 +87,26 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		if (!isComponent(c))
 			return;
 		
-		posList.put(c, d);
 		Calc();
 	}
 	
 	public void add(JComponent c) {
-		super.add(c);
-		posList.put(c, c.getBounds());
+		mainPanel.add(c);
 		Calc();
 	}
 	
 	public void remove(JComponent c) {
-		super.remove(c);
-		posList.remove(c);
+		mainPanel.remove(c);
 		Calc();
 	}
 	
 	public void removeAll() {
-		super.removeAll();
-		posList.clear();
+		mainPanel.removeAll();
 		Calc();
 	}
 	
 	private boolean isComponent(JComponent c) {
-		var cs = getComponents();
+		var cs = getSubComponents();
 		for (int i = 0; i < cs.length; i++) {
 			if (cs[i] == c)
 				return true;
@@ -102,8 +114,8 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		return false;
 	}
 
-	private void Calc() {
-		if (posList.keySet().size() == 0)
+	protected void Calc() {
+		if (getSubComponentCount() == 0)
 			return;
 
 		int wide, tall;
@@ -112,9 +124,12 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 
 		int x = 0, y = 0;
 
-		var iter = posList.keySet().iterator();
-		while (iter.hasNext()) {
-			var d = posList.get(iter.next());
+		var cs = getSubComponents();
+		for (int i = 0; i < cs.length; i++) {
+			if (!cs[i].isVisible())
+				continue;
+			
+			var d = cs[i].getBounds();
 			x = d.x + d.width;
 			y = d.y + d.height;
 
@@ -135,8 +150,8 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		move_w = move_t = 0;
 		
 		var d = (Rectangle)this.getBounds().clone();
-		d.width -= 16;
-		d.height -= 16;
+		d.width -= 8;
+		d.height -= 8;
 		
 		int delx = 0, dely = 0;
 		
@@ -183,9 +198,9 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		
 		if (move_t > 0) {
 			if (move_w <= 0)
-				this.vertical.setBounds(d.width, 0, 16, d.height + 16);
+				this.vertical.setBounds(d.width - 8, 0, 16, d.height + 16);
 			else
-				this.vertical.setBounds(d.width, 0, 16, d.height);
+				this.vertical.setBounds(d.width - 8, 0, 16, d.height);
 			int max = dely / move_t;
 			if (tall % move_t != 0)
 				max++;
@@ -204,22 +219,18 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 			vertical.setValue(0);
 		}
 		
+		mainPanel.setBounds(org_x, org_y, wide, tall);
 		replaceComponents();
 	}
 	
 	private void replaceComponents() {
-		if (posList.keySet().size() == 0)
+		if (getSubComponentCount() == 0)
 			return;
-		
+
 		int x = adjust_x + horizontal.getValue();
 		int y = adjust_y + vertical.getValue();
+		mainPanel.setLocation(org_x - x * move_w, org_y - y * move_t);
 		
-		var iter = posList.keySet().iterator();
-		while (iter.hasNext()) {
-			var c = iter.next();
-			var d = posList.get(c);
-			c.setLocation(d.x - x * move_w, d.y - y * move_t);
-		}
 		repaint();
 	}
 
