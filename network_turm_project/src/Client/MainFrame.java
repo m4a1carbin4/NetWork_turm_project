@@ -37,6 +37,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import GUI.ImagedButton9;
 import Json_Controller.Json_Controller;
 
 
@@ -51,6 +52,8 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 
 	private int userid = -1;
 	private boolean valid = false;
+	
+	private Hashtable<String, String> dataKeeper;
 	
 	// 통신용
 	Socket socket = null;
@@ -161,15 +164,26 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 		    setLocation((resolution.width - main_size[0]) / 2, (resolution.height - main_size[1]) / 2);
 		    setSize(main_size[0], main_size[1]);
 		    
-		    JButton chatbtn = new JButton("Chat");
-		    chatbtn.setBounds(main_size[0] - 80, main_size[1] - 70, 60, 30);
-		    chatbtn.addActionListener(this);
+		    var chatbtn = new ImagedButton9(this, "Chat", "gui/imagedbutton9/button", "OpenChat");
+		    chatbtn.setBounds(main_size[0] - 130, main_size[1] - 120, 60, 30);
 		    chatbtn.setVisible(true);
 		    container.add(chatbtn);
 		    
 		    chat = new Chat(this, main_size[0] - 440, main_size[1] - 350, 400, 300);
 		    chat.setVisible(false);
 		    container.add(chat);
+		    
+		    var exitbtn = new ImagedButton9(this, "Exit", "gui/imagedbutton9/button");
+		    exitbtn.setBounds(main_size[0] - 200, main_size[1] - 120, 60, 30);
+		    exitbtn.setVisible(true);
+		    container.add(exitbtn);
+		    
+		    var room_create = new ImagedButton9(this, "Create Room", "gui/imagedbutton9/button");
+		    room_create.setBounds(main_size[0] - 300, main_size[1] - 120, 90, 30);
+		    room_create.setVisible(true);
+		    container.add(room_create);
+		    
+		    container.repaint();
 			break;
 		}
 	}
@@ -220,7 +234,10 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			e1.printStackTrace();
 		}
 		
-		while(true) {
+		dataKeeper = new Hashtable<String, String>();
+		
+		boolean breaker = false;
+		while (!breaker) {
 			try {
 				str = datainput.readUTF();
 				
@@ -240,12 +257,15 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 						JOptionPane.showMessageDialog(this, "Login failure for unknown error.");
 					else
 						JOptionPane.showMessageDialog(this, Data);
+					breaker = true;
 					break;
 				
 				case "Message":
 					chat.actionPerformed(new ActionEvent(Data, 0, "Receive"));
 					break;
-						
+				
+				default:
+					dataKeeper.put(Type, Data);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -253,42 +273,65 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 		}
 	}
 	
+	public String getData(String key) {
+		if (dataKeeper == null)
+			return null;
+		
+		var result = dataKeeper.get(key);
+		if (result != null) {
+			result = "" + result;
+			dataKeeper.remove(key);
+		}
+		return result;
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().getClass() == JButton.class) {
-			if (e.getActionCommand().contentEquals("Login")) {
-				Thread thread = new Thread(this); // run 함수 -> this
-				thread.start();
-			}
+		switch (e.getActionCommand()) {
+		case "Login":
+			Thread thread = new Thread(this); // run 함수 -> this
+			thread.start();
+			break;
+		case "OpenChat":
+			if (this.chat == null)
+				return;
 			
-			if (e.getActionCommand().contentEquals("Chat")) {
-				if (this.chat == null)
-					return;
-				
-				if (this.chat.isVisible())
-					return;
-				
-				this.chat.appear();
-			}
-		}
-		
-		if (e.getSource().getClass() == JTextField.class) {
-			if (e.getActionCommand().contentEquals("SendChat")) {
-				var text = ((JTextField)e.getSource()).getText();
-				
-				if (text.length() == 0)
-					return;
-
-				((JTextField)e.getSource()).setText("");
-				var data = Json_Controller.wrap("Message", text);
-				
-				System.out.println(data);
-				try {
-					dataoutput.writeUTF(data);
-				} catch (IOException e1) {
-					e1.printStackTrace();
+			if (this.chat.isVisible())
+				return;
+			
+			this.chat.appear();
+			((ImagedButton9)e.getSource()).setVisible(false);
+			break;
+		case "ChatIcon":
+			var cs = container.getComponents();
+			for (int i = 0; i < cs.length; i++) {
+				if (cs[i] instanceof ImagedButton9) {
+					var imgb = (ImagedButton9)cs[i];
+					if (imgb.getText().contentEquals("Chat")) {
+						imgb.setVisible(true);
+					}
 				}
 			}
+			break;
+		case "SendChat":
+			var text = ((JTextField)e.getSource()).getText();
+			
+			if (text.length() == 0)
+				return;
+
+			((JTextField)e.getSource()).setText("");
+			var data = Json_Controller.wrap("Message", text);
+			
+			System.out.println(data);
+			try {
+				dataoutput.writeUTF(data);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			break;
+		case "Exit":
+			System.exit(0);
+			break;
 		}
 	}
 }

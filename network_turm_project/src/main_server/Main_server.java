@@ -114,6 +114,29 @@ public class Main_server {
 		
 	}
 	
+	public synchronized void get_player_list(String data,Client_socket socket) {
+		if (!JDBC.getBool(socket.ID, "connection")) {
+			socket.sendPlayerList("");
+			return;
+		}
+		
+		try {
+			var obj = (JSONObject)parser.parse(JDBC.getPlayerList(socket.ID));
+			
+			String send = "";
+			
+			var iter = obj.keySet().iterator();
+			while (iter.hasNext())
+				send += obj.get(iter.next()) + ";";
+
+			socket.sendPlayerList(send);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public synchronized void make_Room(String data,Client_socket socket, int ID) {
 		socket.manager.client_leave(ID, socket);
 		if(R_manager.Make_Room(socket, data, ID)) {

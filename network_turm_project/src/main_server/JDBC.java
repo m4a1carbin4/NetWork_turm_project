@@ -141,6 +141,30 @@ public class JDBC {
 		return false;
 	}
 	
+	public static String getPlayerList(int id) {
+		JSONObject obj = new JSONObject();
+		
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			
+			rs = stmt.executeQuery("SELECT nickname FROM PLAYER\n"
+					+ "WHERE connection = true AND\n"
+					+ "room_joining = 0 AND\n"
+					+ "ID != " + id);
+			int n = 0;
+			while (rs.next()) {
+				obj.put("user" + ++n, rs.getString(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return obj.toJSONString();
+	}
+	
 	public static String Login(String data) {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;

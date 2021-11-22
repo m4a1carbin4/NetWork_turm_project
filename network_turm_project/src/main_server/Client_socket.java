@@ -109,6 +109,14 @@ public class Client_socket extends Thread {
 		}
 	}
 	
+	public void sendPlayerList(String value) {
+		try {
+			dataoutputstream.writeUTF(Json_maker(value, "Player_List"));
+		} catch (IOException e) {
+			System.out.println("register_fail");
+		}
+	}
+	
 	public void send_message(String input) {
 		String str = Json_maker(input,"Message");
 		
@@ -210,6 +218,9 @@ public class Client_socket extends Thread {
 					break;
 				case "join_Room":
 					server.Join_Room(Data, this,ID);
+					break;
+				case "lobby_list":
+					server.get_player_list(Data, this);
 					break;
 				case "return":
 					manager.return_main(ID,this);

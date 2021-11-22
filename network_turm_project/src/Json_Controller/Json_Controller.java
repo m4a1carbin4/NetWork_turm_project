@@ -38,6 +38,12 @@ public class Json_Controller {
 	}
 	
 	public static String wrap(String type, String data) {
+		if (type == null)
+			return null;
+		
+		if (data == null)
+			data = "";
+		
 		Hashtable<String, String> result = new Hashtable<String, String>();
 		
 		result.put("Type", type);
