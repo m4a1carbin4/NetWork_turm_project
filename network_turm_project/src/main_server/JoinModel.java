@@ -1,7 +1,5 @@
 package main_server;
 
-import starz502Client.data.DataTypes;
-
 public class JoinModel {
 	public Integer datatype = DataTypes.JOIN;
 	public String stz_username;

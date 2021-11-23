@@ -18,8 +18,9 @@ public class Echo {
 		manager = input;
 	}
 	
-	public synchronized void brodcast_message(String str) {
+	public synchronized void brodcast_message(String str, Client_socket sender) {
 		
+		str = JDBC.getString(sender.ID, "NICKNAME") + ": " + str;
 		for(Client_socket socket : manager.client_list.values()) {
 			
 			socket.send_message(str);

@@ -1,7 +1,5 @@
 package main_server;
 
-import starz502Client.data.DataTypes;
-
 public class ResultModel {
 	public Integer datatype = DataTypes.RESULT;
 	public String stz_username;

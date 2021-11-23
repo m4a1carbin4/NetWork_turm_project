@@ -2,9 +2,6 @@ package Client;
 
 import java.util.Vector;
 
-import main_server.Bullet;
-import starz502Client.data.DataTypes;
-
 /*Client는 이거 2개 필요함. 서버로 보낼 데이터, 실시간으로 바꿀 데이터*/
 public class GameModel {
 	public Integer datatype = DataTypes.GAME;

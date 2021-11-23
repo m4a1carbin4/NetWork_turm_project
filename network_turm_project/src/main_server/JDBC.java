@@ -15,6 +15,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import Json_Controller.Json_Controller;
+
 public class JDBC {
 	private static Connection conn = null;
 
@@ -60,6 +62,110 @@ public class JDBC {
 		return date;
 	}
 	
+	public static String getString(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public static int getInt(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return 0;
+	}
+	
+	public static double getDouble(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getDouble(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return 0.0;
+	}
+	
+	public static boolean getBool(int id, String key) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT " + key + " FROM PLAYER WHERE\n" 
+					+ "ID = " + id;
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				return rs.getBoolean(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	public static String getPlayerList(int id) {
+		JSONObject obj = new JSONObject();
+		
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			
+			rs = stmt.executeQuery("SELECT nickname FROM PLAYER\n"
+					+ "WHERE connection = true AND\n"
+					+ "room_joining = 0 AND\n"
+					+ "ID != " + id);
+			int n = 0;
+			while (rs.next()) {
+				obj.put("user" + ++n, rs.getString(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return obj.toJSONString();
+	}
+	
 	public static String Login(String data) {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;
@@ -95,7 +201,7 @@ public class JDBC {
 			pstmt.setString(3, pw);
 			int count = pstmt.executeUpdate();
 			
-			if (count != 0) {
+			if (count != 1) {
 				stmt = conn.createStatement();
 				sql = "SELECT * FROM PLAYER WHERE\n" 
 						+ "USER_ID = '" + id + "'";
@@ -152,7 +258,7 @@ public class JDBC {
 		
 		try {
 			String sql = "UPDATE player\n"
-					+ "SET WIN +=1 ,\n"
+					+ "SET WIN = WIN + 1\n"
 					+ "WHERE id = ?";
 			
 			var pstmt = conn.prepareStatement(sql);
@@ -194,7 +300,7 @@ public class JDBC {
 		
 		try {
 			String sql = "UPDATE player\n"
-					+ "SET LOSS +=1 ,\n"
+					+ "SET LOSS = LOSS + 1\n"
 					+ "WHERE id = ?";
 			
 			var pstmt = conn.prepareStatement(sql);
@@ -228,6 +334,42 @@ public class JDBC {
 		}
 
 		return -1;
+	}
+	
+	public static void find_passwd (String input,Client_socket user) {
+		
+		JSONObject tmp = Json_Controller.parse(input);
+		
+		String ID = (String)tmp.get("ID");
+		String Nname = (String)tmp.get("Nname");
+		String Email = (String)tmp.get("Email");
+		String Passwd = null;
+		
+		try {
+			String sql = "SELECT password FROM player WHERE user_id = '" + ID + "' AND nickname = '" + Nname + "' AND email = '" + Email + "'";
+			
+			var pstmt = conn.prepareStatement(sql);
+
+			var rs = pstmt.executeQuery(sql);
+			if (rs.next())
+				Passwd =  rs.getString(1);
+			
+				String sql2 = "SELECT CAST(AES_DECRYPT(UNHEX('" + Passwd + "'), 'team2') AS CHAR(50))";
+			
+				var pstmt2 = conn.prepareStatement(sql2);
+				
+				var rs2 = pstmt2.executeQuery(sql2);
+				
+				if(rs2.next()) {
+					user.send_passwd(rs2.getString(1));	
+					return;
+				}
+				
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		user.fail_passwd("fail");
+		return;
 	}
 	
 	public static int register(String data) {

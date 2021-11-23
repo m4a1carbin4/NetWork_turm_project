@@ -29,10 +29,12 @@ public class Room_manager {
 			Room new_room = new Room(this,server);
 			Room_list.put(Room_name, new_room);
 			new_room.add_user(user, ID);
-			user.send_message("new_Room has been made.");
+			user.Room_clear();
+			//user.send_message("new_Room has been made.");
 			
 			return true;
 		}else {
+			user.Room_fail();
 			return false;
 		}
 		
@@ -43,10 +45,12 @@ public class Room_manager {
 		
 		if(tmp != null) {
 			tmp.add_user(user, ID);
-			user.send_message("System : success Join the "+Room_name+".");
+			user.Room_clear();
+			//user.send_message("System : success Join the "+Room_name+".");
 			return true;
 		}else {
 			user.send_message("System : fail Join the "+Room_name+".");
+			user.Room_fail();
 			return false;
 		}
 	}
@@ -58,11 +62,11 @@ public class Room_manager {
 			G_Room new_room = new G_Room(this,server);
 			Room_listG.put(Room_name, new_room);
 			new_room.add_user(user, ID, user.user_lobby);
-			user.Room_clear();
+			user.RoomG_clear();
 			
 			return true;
 		}else {
-			user.Room_fail();
+			user.RoomG_fail();
 			return false;
 		}
 		
@@ -74,11 +78,11 @@ public class Room_manager {
 		if(tmp != null) {
 			tmp.add_user(user, ID,user.user_lobby);
 			System.out.println("System : success Join the "+Room_name+".");
-			user.Room_clear();
+			user.RoomG_clear();
 			return true;
 		}else {
 			System.out.println("System : fail Join the "+Room_name+".");
-			user.Room_fail();
+			user.RoomG_fail();
 			return false;
 		}
 	}

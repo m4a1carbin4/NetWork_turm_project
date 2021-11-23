@@ -95,8 +95,8 @@ public class Client_manager{
 	public void return_main(int ID,Client_socket user) {
 		user.echo = user.server.manager.echo;
 		user.server.manager.client_access(ID, user);
-		user.send_message("return to main");
 		client_list.remove(ID);
+		user.return_clear();
 	}
 	
 }

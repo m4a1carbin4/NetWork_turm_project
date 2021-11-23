@@ -83,6 +83,7 @@ public class DataExportToAllClient extends Thread{
 	}
 
 	public void lobbyDataExportToAllClient(String jSonData) {
+		
 		for (Client_socket client : client_list.values()) {				
 			try {
 				client.dataoutputstream.writeUTF(jSonData);
@@ -95,7 +96,7 @@ public class DataExportToAllClient extends Thread{
 	// 모든 클라이언트에게 (그림 그리는데 필요한 모든)데이터 전송하는 스레드 , period : 34ms
 
 	public void run() {
-
+		int num = 4;
 		gameCalculator.calPlayerHitByBullet(); // 피격 판정 함수
 		GameModelList gameModelList = new GameModelList(gameCalculator.getGameModelForCalculator());
 
@@ -112,9 +113,14 @@ public class DataExportToAllClient extends Thread{
 					if (gameModelList.getGameModelList().get(i).getPlayer().getStz_username()
 							== clientList.get(j).ID) {
 						clientList.remove(j);
+						num--;
 					}
 				}
 			}
+		}
+		
+		if(clientList.isEmpty()) {
+			service.shutdown();
 		}
 	}
 

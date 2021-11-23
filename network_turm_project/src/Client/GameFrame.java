@@ -26,11 +26,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import Json_Controller.Json_Controller;
 import main_server.Bullet;
 import main_server.GameModel;
 import main_server.GameModelList;
@@ -379,7 +381,7 @@ public class GameFrame extends JFrame implements Runnable{
     	 String str= " ";
     	 
          try {
-        	 while(true) {
+        	 while(str != null) {
         		 str = datainputstream.readUTF();
  				
      			JSONObject input_data = Json_parser(str);
@@ -389,6 +391,11 @@ public class GameFrame extends JFrame implements Runnable{
              	 
              	if(!(Type.equals("Game"))) {
              		continue;
+             	}else if(Type.equals("Game_end")) {
+             		JOptionPane.showMessageDialog(null, Data);
+             		new MainFrame_re(dataoutputstream,datainputstream);
+                    dispose();
+                    break;
              	}
                 System.out.println("From Server >> " + Data);
 
@@ -404,9 +411,17 @@ public class GameFrame extends JFrame implements Runnable{
                    
                    // 내 캐릭터 체력 0 이하면 GameResultFrame으로 넘어가기
                    if(receiveCurHp <= 0) {
-                      //new GameResultFrame(reader, writer, username);
-                      dispose();
-                      break;
+                	   
+                	  JOptionPane.showMessageDialog(null, "Game_over");
+                	  
+                	  String re = Json_Controller.wrap("return","return"); 
+                	  
+                	  dataoutputstream.writeUTF(re);
+	
+           				new MainFrame_re(dataoutputstream,datainputstream);
+           				dispose();
+           				break;
+                	  
                    }
                    
                     // paintComponent()메서드를 스레드로 호출함.

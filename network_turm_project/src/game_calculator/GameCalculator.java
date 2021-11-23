@@ -4,6 +4,7 @@ package game_calculator;
 import java.util.Vector;
 
 import main_server.GameModel;
+import main_server.JDBC;
 import main_server.ResultModel;
 
 
@@ -42,13 +43,10 @@ public class GameCalculator { // 게임 연산 모듈은 하나만 존재해야하기때문에 싱글
 												gameModelForCalculator.get(k).getPlayer().setCurHp(userCurHp - bulletDmg);
 
 												if (gameModelForCalculator.get(k).getPlayer().getCurHp() <= 0) {
-													/*if (resultModelList.size() < 4) {
-														ResultModelDAO resultModelDao = new ResultModelDAO();
-														ResultModel resultModel = new ResultModel();
-														resultModel = resultModelDao.resultUserData(gameModelForCalculator.get(k).getPlayer().getStz_username(), rank);
-
-														resultModelList.add(resultModel);
-													}*/
+													
+													JDBC.LOSE_add(gameModelForCalculator.get(k).getPlayer().getStz_username());
+													rank--;
+					
 												}
 
 											}
@@ -68,10 +66,7 @@ public class GameCalculator { // 게임 연산 모듈은 하나만 존재해야하기때문에 싱글
 			for (int m = 0; m < 4; m++) {
 				if (gameModelForCalculator.get(m).getPlayer().getCurHp() > 0) { // rank가 1이 됐는데 현재체력이 0 이상이면 우승자
 					gameModelForCalculator.get(m).getPlayer().setCurHp(0);
-					/*ResultModelDAO resultModelDaoWinner = new ResultModelDAO();
-					ResultModel resultModelWinner = new ResultModel();
-					resultModelWinner = resultModelDaoWinner.resultUserData(gameModelForCalculator.get(m).getPlayer().getStz_username(), rank);
-					resultModelList.add(resultModelWinner);*/
+					JDBC.WIN_add(gameModelForCalculator.get(m).getPlayer().getStz_username());
 				}
 			}
 		} else {
