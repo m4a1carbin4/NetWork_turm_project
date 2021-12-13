@@ -97,9 +97,9 @@ public class Client_socket extends Thread {
 		
 		try {
 			dataoutputstream.writeUTF(Json_maker(String.valueOf(id),"Login_clear"));
-			int WIN = JDBC.WIN_check(ID);
-			int LOSE = JDBC.LOSE_check(ID);
-			user_lobby = new LobbyModelUser(ID, WIN,LOSE,"0","on");
+			int WIN = JDBC.WIN_check(id);
+			int LOSE = JDBC.LOSE_check(id);
+			user_lobby = new LobbyModelUser(id, WIN,LOSE,"0","on");
 		} catch (IOException e) {
 			System.out.println("login_clear");
 		}
@@ -294,6 +294,10 @@ public class Client_socket extends Thread {
 	public void game_end(String input) {
 		String str = Json_maker(input,"Game_end");
 		
+		int WIN = JDBC.WIN_check(ID);
+		int LOSE = JDBC.LOSE_check(ID);
+		user_lobby = new LobbyModelUser(ID, WIN,LOSE,"0","on");
+		
 		try {
 			dataoutputstream.writeUTF(str);
 		} catch (IOException e) {
@@ -360,6 +364,9 @@ public class Client_socket extends Thread {
 					break;
 				case "return":
 					manager.return_main(ID,this);
+					int WIN = JDBC.WIN_check(ID);
+					int LOSE = JDBC.LOSE_check(ID);
+					user_lobby = new LobbyModelUser(ID, WIN,LOSE,"0","on");
 					break;
 				case "find_passwd":
 					JDBC.find_passwd(Data,this);
@@ -419,6 +426,7 @@ public class Client_socket extends Thread {
 				if (datainputstream != null) datainputstream.close();
 				if (input != null) input.close();
 				if (socket != null) socket.close();
+				JDBC.logout(ID);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

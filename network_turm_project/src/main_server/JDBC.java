@@ -201,7 +201,7 @@ public class JDBC {
 			pstmt.setString(3, pw);
 			int count = pstmt.executeUpdate();
 			
-			if (count != 1) {
+			if (count == 1) {
 				stmt = conn.createStatement();
 				sql = "SELECT * FROM PLAYER WHERE\n" 
 						+ "USER_ID = '" + id + "'";
@@ -259,14 +259,18 @@ public class JDBC {
 		try {
 			String sql = "UPDATE player\n"
 					+ "SET WIN = WIN + 1\n"
-					+ "WHERE id = ?";
+					+ "WHERE ID = '" + id + "'";
 			
 			var pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, id);
-
 			int count = pstmt.executeUpdate();
-			if (count != 0)
+			
+			if (count !=0 ) {
 				return true;
+			}else {
+				return false;
+			}
+			
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -278,15 +282,21 @@ public class JDBC {
 		if (id < 0)
 			return -1;
 		
+		Statement stmt = null;
+		ResultSet rs = null;
+		
 		try {
-			String sql = "SELECT WIN FROM PLAYER WHERE id = ?";
+			String sql = "SELECT WIN FROM PLAYER WHERE\n" 
+					+ "ID = '" + id + "'";
 			
-			var pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, id);
-
-			var rs = pstmt.executeQuery(sql);
-			if (rs.next())
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery(sql);
+			
+			if (rs.next()) {
 				return rs.getInt(1);
+			}else {
+				return -1;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -301,14 +311,16 @@ public class JDBC {
 		try {
 			String sql = "UPDATE player\n"
 					+ "SET LOSS = LOSS + 1\n"
-					+ "WHERE id = ?";
+					+ "WHERE ID = '" + id + "'";
 			
 			var pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, id);
-
 			int count = pstmt.executeUpdate();
-			if (count != 0)
+			
+			if (count != 0) {
 				return true;
+			}else {
+				return false;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -320,15 +332,21 @@ public class JDBC {
 		if (id < 0)
 			return -1;
 		
+		Statement stmt = null;
+		ResultSet rs = null;
+		
 		try {
-			String sql = "SELECT LOSS FROM PLAYER WHERE id = ?";
+			String sql = "SELECT LOSS FROM PLAYER WHERE\n" 
+					+ "ID = '" + id + "'";
 			
-			var pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, id);
-
-			var rs = pstmt.executeQuery(sql);
-			if (rs.next())
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery(sql);
+			
+			if (rs.next()) {
 				return rs.getInt(1);
+			}else {
+				return -1;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

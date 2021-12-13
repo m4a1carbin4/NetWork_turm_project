@@ -78,19 +78,6 @@ public class LobbyFrame extends JFrame implements Runnable {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		panelRank = new JPanel();
-		panelRank.setBounds(50, 50, 350, 670);
-		panelRank.setBackground(new Color(100, 0, 100));
-		panelRank.setLayout(null);
-		contentPane.add(panelRank);
-
-		labelRank = new JLabel("RANKING");
-		labelRank.setBounds(0, 0, panelRank.getWidth(), 50);
-		labelRank.setFont(new Font("Arial Black", Font.BOLD, 30));
-		labelRank.setForeground(Color.ORANGE);
-		labelRank.setHorizontalAlignment(SwingConstants.CENTER);
-		panelRank.add(labelRank);
-
 		panelList = new JPanel();
 		panelList.setBounds(770, 50, 270, 536);
 		panelList.setBackground(new Color(100, 0, 100));
@@ -208,8 +195,9 @@ public class LobbyFrame extends JFrame implements Runnable {
 					// =============UserList=========================
 					// 리스트 테이블 열의 이름 벡터
 					Vector<String> list = new Vector<>();
-					list.add("Level");
-					list.add("UserName");
+					list.add("ID");
+					list.add("WIN");
+					list.add("LOSE");
 					list.add("Ready");
 
 					// tableModel에 전체 행 넣기
@@ -223,8 +211,9 @@ public class LobbyFrame extends JFrame implements Runnable {
 
 						if (lobbyModelUserList.get(i).getStz_logstate().equals("on")) {
 							Vector<Object> row = new Vector<>();
-							row.addElement(lobbyModelUserList.get(i).getWin());
 							row.addElement(lobbyModelUserList.get(i).getStz_username());
+							row.addElement(lobbyModelUserList.get(i).getWin());
+							row.addElement(lobbyModelUserList.get(i).getLOSE());
 							if( lobbyModelUserList.get(i).getStz_ready().equals("0") ) {
 								row.addElement("X");
 							}else {
