@@ -25,8 +25,9 @@ public class JDBC {
 	public JDBC() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://gcckim2020.kro.kr:3306/game_db";
-			conn = DriverManager.getConnection(url, "game", "nwteamb");
+			String url = "jdbc:mysql://localhost:3306/game_db";
+			conn = DriverManager.getConnection(url, "root", "youareadie2!A");
+								//mysql 계정 아이디 , 비밀번호.
 
 			System.out.println("[JDBC] Connected with: " + url);
 		} catch (ClassNotFoundException e) {
