@@ -25,8 +25,8 @@ public class JDBC {
 	public JDBC() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			String url = "jdbc:mysql://localhost:3306/game_db";
-			conn = DriverManager.getConnection(url, "root", "youareadie2!A");
+			String url = "jdbc:mysql://gcckim2020.kro.kr:3306/game_db";
+			conn = DriverManager.getConnection(url, "game", "nwteamb");
 
 			System.out.println("[JDBC] Connected with: " + url);
 		} catch (ClassNotFoundException e) {
@@ -122,6 +122,33 @@ public class JDBC {
 		return 0.0;
 	}
 	
+	public static String getUserData(String name) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		try {
+			stmt = conn.createStatement();
+			String sql = "SELECT nickname, email, private_site, con_date, win, loss FROM PLAYER WHERE\n" 
+					+ "nickname = " + "\"" + name + "\"";
+	
+			rs = stmt.executeQuery(sql);
+			if (rs.next()) {
+				var obj = new JSONObject();
+				obj.put("nname", rs.getString(1));
+				obj.put("email", rs.getString(2));
+				obj.put("psite", rs.getString(3));
+				obj.put("con_date", rs.getString(4));
+				obj.put("win", rs.getInt(5));
+				obj.put("loss", rs.getInt(6));
+				return obj.toJSONString();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
 	public static boolean getBool(int id, String key) {
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -201,7 +228,7 @@ public class JDBC {
 			pstmt.setString(3, pw);
 			int count = pstmt.executeUpdate();
 			
-			if (count != 1) {
+			if (count != 0) {
 				stmt = conn.createStatement();
 				sql = "SELECT * FROM PLAYER WHERE\n" 
 						+ "USER_ID = '" + id + "'";
@@ -212,14 +239,20 @@ public class JDBC {
 					obj.put("ID", rs.getInt(1));
 					return obj.toJSONString();
 				}
-				else
-					return null;
 			}
 			else {
-				obj.clear();
-				obj.put("ID", -1);
-				obj.put("ERROR", "ALREADY_LOGINED");
-				return obj.toJSONString();
+				stmt = conn.createStatement();
+				sql = "SELECT * FROM PLAYER WHERE\n" 
+						+ "USER_ID = '" + id + "'\n"
+						+ "AND PASSWORD = hex(aes_encrypt('" + pw + "', 'team2'))";
+
+				rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					obj.clear();
+					obj.put("ID", -1);
+					obj.put("ERROR", "ALREADY_LOGINED");
+					return obj.toJSONString();
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

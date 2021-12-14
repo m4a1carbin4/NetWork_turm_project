@@ -19,7 +19,7 @@ public class ImagedButton9 extends ImagedButton {
 
 		var img = (ImageIcon[])image[slot];
 
-		if (img != null || img.length != 9) {
+		if (img != null && img.length == 9) {
 			var d = this.getBounds();
 
 			int w = img[0].getIconWidth();
@@ -118,6 +118,68 @@ public class ImagedButton9 extends ImagedButton {
 			this.repaint();
 	}
 	
+	public void setTImage(String file, boolean repaint) {
+		String path = System.getProperty("user.dir");
+		
+		for (int i = 0; i < 4; i++) {
+			if (image[i] == null)
+				image[i] = new ImageIcon[9];
+			
+			ImageIcon[] holder = (ImageIcon[])image[i];
+			
+			for (int j = 0; j < 9; j++) {
+				String tpath = path + "/" + file;
+				
+				tpath += "_";
+
+				switch (j / 3) {
+				case 0:
+					tpath += "t"; // top
+					break;
+				case 1:
+					tpath += "m"; // mid
+					break;
+				case 2:
+					tpath += "b"; // bottom
+					break;
+				}
+
+				switch (j % 3) {
+				case 0:
+					tpath += "l"; // left
+					break;
+				case 1:
+					tpath += "c"; // center
+					break;
+				case 2:
+					tpath += "r"; // right
+					break;
+				}
+				
+				switch (i) {
+				case 0:
+					tpath += 'n'; // normal
+					break;
+				case 1:
+					tpath += 'o'; // on
+					break;
+				case 2:
+					tpath += 'c'; // click
+					break;
+				case 3:
+					tpath += 'd'; // disabled
+					break;
+				}
+				
+				tpath += ".png";
+				holder[j] = new ImageIcon(tpath);
+			}
+		}
+		
+		if (repaint)
+			this.repaint();
+	}
+	
 	public void setEdgeSize(int w, int t) {
 		edge_w = w;
 		edge_t = t;
@@ -145,67 +207,5 @@ public class ImagedButton9 extends ImagedButton {
 		this.addMouseListener(this);
 		this.setImage(image, false);
 		this.setEdgeSize(4, 4);
-	}
-	
-	@Override
-	public void setEnabled(boolean value) {
-		super.setEnabled(value);
-		repaint();
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) { }
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		if (!isEnabled())
-			return;
-
-		if (state == 1) {
-			state = 2;
-			repaint();
-		}
-	}
-
-	private void ObjectTrigger() {
-		if (master == null)
-			return;
-
-		if (master instanceof ActionListener)
-			((ActionListener) master).actionPerformed(new ActionEvent(this, 0, command));
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if (state == 2) {
-			if (!isEnabled()) {
-				state = 1;
-				return;
-			}
-
-			ObjectTrigger();
-			state = 1;
-			repaint();
-		}
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		state = 1;
-		repaint();
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		state = 0;
-		repaint();
 	}
 }

@@ -200,6 +200,14 @@ public class Client_socket extends Thread {
 		}
 	}
 	
+	public void sendPriavteData(String value, String Type) {
+		try {
+			dataoutputstream.writeUTF(Json_maker(value, Type));
+		} catch (IOException e) {
+			System.out.println("failed data sent: " + Type);
+		}
+	}
+	
 	public void Game_model_msg(String input) {
 		String str = Json_maker(input,"Game");
 		
@@ -402,7 +410,18 @@ public class Client_socket extends Thread {
 					server.R_manager.brodcast_lobby(G_name_ptr);
 					server.R_manager.start_request(G_name_ptr,service);
 					break;
-					
+				case "lobby_list":
+					server.get_player_list(this);
+					break;
+				case "Request.Room_List":
+					server.inform_room_list(this);
+					break;
+				case "Request.Player_List":
+					server.inform_user_list(this);
+					break;
+				case "Request.Player_Data":
+					server.inform_user_data(Data, this);
+					break;
 				default :
 					break;
 				}

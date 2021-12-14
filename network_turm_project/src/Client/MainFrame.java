@@ -1,24 +1,16 @@
 package Client;
 
 import java.awt.Toolkit;
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Color;
-
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -27,21 +19,18 @@ import java.util.Hashtable;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import GUI.ImagedButton9;
+import GUI.ImagedLabel;
+import GUI.ImagedLabel9;
+import GUI.ListPanel;
 import Json_Controller.Json_Controller;
 
 
@@ -55,6 +44,9 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 	Gui_register_v2 register = null;
 	
 	private Chat chat;
+	
+	private ListPanel room_list;
+	private ListPanel player_list;
 
 	private int userid = -1;
 	private boolean valid = false;
@@ -195,15 +187,17 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 		clear();
 		
 		switch (type) {
-		case 1:
+		case 1: // lobby
 		    var resolution = Toolkit.getDefaultToolkit().getScreenSize();
 		    setLocation((resolution.width - main_size[0]) / 2, (resolution.height - main_size[1]) / 2);
 		    setSize(main_size[0], main_size[1]);
-		    
-		    chat = new Chat(this, main_size[0] - 440, main_size[1] - 350, 400, 300);
+
+		    var point = getLocation();
+		    chat = new Chat(this, point.x + main_size[0] - 440, point.y + main_size[1] - 350, 400, 300);
 		    chat.setVisible(false);
-		    container.add(chat);
-		    
+		    chat.setAlwaysOnTop(true);
+		    //container.add(chat);
+
 		    var exitbtn = new ImagedButton9(this, "Exit", "gui/imagedbutton9_red/button");
 		    exitbtn.setBounds(main_size[0] - 130, main_size[1] - 120, 60, 30);
 		    exitbtn.setVisible(true);
@@ -214,34 +208,66 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 		    chatbtn.setVisible(true);
 		    container.add(chatbtn);
 		    
+		    var room_list_label = new ImagedLabel9("Room List");
+		    room_list_label.setTImage("gui/imagedlabel/label", true);
+		    room_list_label.setBounds(50, 50, 100, 30);
+		    room_list_label.setHorizontalAlignment(SwingConstants.CENTER);
+		    container.add(room_list_label);
+		    
+		    String[] room_names = {"Room Name", "Participant Number", "Status"};
+		    room_list = new ListPanel(this, room_names, 15);
+		    room_list.setBounds(50, 90, 600, 520);
+		    container.add(room_list);
+		    
+		    var player_list_label = new ImagedLabel9("Player List");
+		    player_list_label.setTImage("gui/imagedlabel/label", true);
+		    player_list_label.setBounds(670, 50, 100, 30);
+		    player_list_label.setHorizontalAlignment(SwingConstants.CENTER);
+		    container.add(player_list_label);
+		    
+		    String[] plist_attr = {"Player List"};
+		    player_list = new ListPanel(this, plist_attr, 15);
+		    player_list.setBounds(670, 90, 280, 520);
+		    container.add(player_list);
+		    
 		    var room_create = new ImagedButton9(this, "Create Room", "gui/imagedbutton9/button", "Room");
-		    room_create.setBounds(main_size[0] - 300, main_size[1] - 120, 90, 30);
+		    room_create.setBounds(50, main_size[1] - 120, 90, 30);
 		    room_create.setVisible(true);
 		    container.add(room_create);
 		    
 		    var Groom_create = new ImagedButton9(this, "Create GRoom", "gui/imagedbutton9/button", "GRoom");
-		    Groom_create.setBounds(main_size[0] - 400, main_size[1] - 120, 90, 30);
+		    Groom_create.setBounds(150, main_size[1] - 120, 90, 30);
 		    Groom_create.setVisible(true);
 		    container.add(Groom_create);
 		    
 		    var room_join = new ImagedButton9(this, "Join Room", "gui/imagedbutton9/button", "JRoom");
-		    room_join.setBounds(main_size[0] - 300, main_size[1] - 150, 90, 30);
+		    room_join.setBounds(50, main_size[1] - 150, 90, 30);
 		    room_join.setVisible(true);
 		    container.add(room_join);
 		    
 		    var Groom_join = new ImagedButton9(this, "Join GRoom", "gui/imagedbutton9/button", "JGRoom");
-		    Groom_join.setBounds(main_size[0] - 400, main_size[1] - 150, 90, 30);
+		    Groom_join.setBounds(150, main_size[1] - 150, 90, 30);
 		    Groom_join.setVisible(true);
 		    container.add(Groom_join);
 		    
 		    var return_main = new ImagedButton9(this, "Retrun", "gui/imagedbutton9/button", "return");
-		    return_main.setBounds(main_size[0] - 500, main_size[1] - 120, 90, 30);
+		    return_main.setBounds(250, main_size[1] - 120, 90, 30);
 		    return_main.setVisible(true);
 		    container.add(return_main);
+		    
+			try {
+				dataoutput.writeUTF(Json_Controller.wrap("Request.Room_List", ""));
+				dataoutput.writeUTF(Json_Controller.wrap("Request.Player_List", ""));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		    
 		    container.repaint();
 		    
 			break;
+		case 2: // 
+			break;
+		
 		}
 	}
 
@@ -346,6 +372,61 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 				case "return_fail":
 					JOptionPane.showMessageDialog(this, "return fail.");
 					break;	
+
+				case "MainFrame.Room_List":
+					if (Data.length() != 0 && room_list != null) {
+						var jobj = Json_Controller.parse(Data);
+						if (jobj != null) {
+							room_list.deleteAllItem();
+							for (var sub_data : jobj.values()) {
+								var jobje = Json_Controller.parse((String)sub_data);
+								if (jobje != null) {
+									String[] spec = new String[3];
+									spec[0] = (String)jobje.get("name");
+									spec[1] = "( " + String.valueOf((long)jobje.get("num")) + " / 4)";
+									spec[2] = (String)jobje.get("status");
+									if (spec != null && spec.length == room_list.getAttrSize())
+										room_list.addItem(spec, "Lobby.JoinLoom " +  spec[0]);
+								}
+							}
+						}
+					}
+					break;
+					
+				case "MainFrame.Player_List":
+					if (Data.length() != 0 && player_list != null) {
+						String[] spl = Data.split(";");
+						if (spl != null) {
+							player_list.deleteAllItem();
+							for (int i = 0; i < spl.length; i++) {
+								String[] spec = {spl[i]};
+								player_list.addItem(spec, "Lobby.ShowPlayer " +  spl[i]);
+							}
+						}
+					}
+					break;
+					
+				case "MainFrame.Player_List.ShowData":
+					if (Data.length() > 0) {
+						var obj = Json_Controller.parse(Data);
+						if (obj != null) {
+							String text = "";
+							if (obj.get("nname") != null)
+								text += "Nickname: " + obj.get("nname") + "\n";
+							if (obj.get("email") != null)
+								text += "E-Mail: " + obj.get("email") + "\n";
+							if (obj.get("psite") != null)
+								text += "Nickname: " + obj.get("psite") + "\n";
+							if (obj.get("con_date") != null)
+								text += "Last Connection Date: " + obj.get("con_date") + "\n";
+							if (obj.get("win") != null)
+								text += "WIN: " + obj.get("win") + "\n";
+							if (obj.get("loss") != null)
+								text += "LOSS: " + obj.get("loss") + "\n";
+							JOptionPane.showMessageDialog(null, text);
+						}
+					}
+					break;
 					
 				default:
 					dataKeeper.put(Type, Data);
@@ -370,6 +451,30 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		var args = e.getActionCommand().split(" ");
+		if (args != null && args.length >= 2) {
+			String context = e.getActionCommand().substring(args[0].length() + 1);
+			switch (args[0]) {
+			case "Lobby.JoinLoom":
+				try {
+					dataoutput.writeUTF(Json_Controller.wrap("join_G_Room", context));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+				dispose();
+				break;
+			case "Lobby.ShowPlayer":
+				try {
+					dataoutput.writeUTF(Json_Controller.wrap("Request.Player_Data", context));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			}
+			return;
+		}
+		
 		switch (e.getActionCommand()) {
 		case "Login":
 			Thread thread = new Thread(this); // run 함수 -> this
@@ -406,8 +511,8 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			String room_name=JOptionPane.showInputDialog("룸 이름 입력.");
 			
 			var data1 = Json_Controller.wrap("new_Room", room_name);
+			System.out.println("Room: "  + data1);
 			
-			System.out.println(data1);
 			try {
 				dataoutput.writeUTF(data1);
 			} catch (IOException e1) {
@@ -472,6 +577,5 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			System.exit(0);
 			break;
 		}
-		
 	}
 }

@@ -40,7 +40,7 @@ public class Room_manager {
 		
 	}
 	
-	public Boolean Join_Room(Client_socket user,String Room_name,int ID) {
+	public Boolean Join_Room(Client_socket user, String Room_name, int ID) {
 		Room tmp = Room_list.get(Room_name);
 		
 		if(tmp != null) {
@@ -55,9 +55,9 @@ public class Room_manager {
 		}
 	}
 	
-	public Boolean Make_G_Room(Client_socket user,String Room_name ,int ID) {
+	public Boolean Make_G_Room(Client_socket user, String Room_name, int ID) {
 		
-		if(Room_listG.get(Room_name) == null) {
+		if (Room_listG.get(Room_name) == null) {
 			
 			G_Room new_room = new G_Room(this,server);
 			Room_listG.put(Room_name, new_room);
@@ -72,11 +72,11 @@ public class Room_manager {
 		
 	}
 	
-	public Boolean Join_G_Room(Client_socket user,String Room_name,int ID) {
+	public Boolean Join_G_Room(Client_socket user, String Room_name, int ID) {
 		G_Room tmp = Room_listG.get(Room_name);
 		
 		if(tmp != null) {
-			tmp.add_user(user, ID,user.user_lobby);
+			tmp.add_user(user, ID, user.user_lobby);
 			System.out.println("System : success Join the "+Room_name+".");
 			user.RoomG_clear();
 			return true;

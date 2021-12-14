@@ -24,6 +24,8 @@ public class ChattingDialog extends ScrollPanel {
 	public ChattingDialog(int preserve) {
 		super(false, false);
 		
+		this.setMode(2);
+		
 		if (preserve > max_content)
 			preserve = max_content;
 
@@ -121,12 +123,6 @@ public class ChattingDialog extends ScrollPanel {
 
 		contextList.add(0, (Hashtable<String, String>)value.clone());
 		load();
-	}
-	
-	protected void Calc() {
-		super.Calc();
-		vertical.setValue(vertical.getMaximum());
-		horizontal.setValue(horizontal.getMaximum());
 	}
 	
 	private String breakLines(String str, int width, int size) {

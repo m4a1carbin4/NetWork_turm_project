@@ -136,7 +136,7 @@ public class LobbyFrame extends JFrame implements Runnable {
 				
 				lobbyModelUser.setStz_ready(readyState);
 				
-				String ptr = Json_Controller.wrap("ready",readyState);
+				String ptr = Json_Controller.wrap("ready", readyState);
 
 				// 3. 만들어진 json을 서버로 보내기
 				try {
@@ -178,7 +178,7 @@ public class LobbyFrame extends JFrame implements Runnable {
 		}
 		
 		JSONObject tmp = Json_Controller.parse(ptr2);
-		String data = (String) tmp.get("Data");
+		String data = (String)tmp.get("Data");
 		
 		lobbyModelUser = gson.fromJson(data, LobbyModelUser.class);
 		
@@ -193,13 +193,11 @@ public class LobbyFrame extends JFrame implements Runnable {
 				String Type = (String)obj.get("Type");
 				String gson_data = (String) obj.get("Data");
 				
-				if(Type!=null && Type.equals("Game_start")) {
+				if (Type != null && Type.equals("Game_start")) {
 					setVisible(false);
 					Game = new GameFrame(writer, reader, username);
 					break;
-					
-				}else {
-					
+				} else {
 					receiveLobbyModel = gson.fromJson(gson_data, LobbyModel.class);
 
 					// LobbyModel 객체 이용해서 화면에 정보 뿌려주기 (Ranking, userlist)
