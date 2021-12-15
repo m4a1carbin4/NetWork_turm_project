@@ -11,4 +11,4 @@ https://github.com/codingspecialist/Java-Swing-Project/tree/master/502%EC%8A%A4%
 
 youtube_video link.
 
-https://youtu.be/oGTod5bnQGg
+https://www.youtube.com/watch?v=Y4CRqXL7Hlc
