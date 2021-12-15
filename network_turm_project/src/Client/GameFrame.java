@@ -45,24 +45,35 @@ import org.json.simple.parser.ParseException;
 
 public class GameFrame extends JFrame implements Runnable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public DataOutputStream dataoutputstream;
 	public DataInputStream datainputstream;
+	@SuppressWarnings("exports")
 	public JSONParser parser = new JSONParser();
+	@SuppressWarnings("exports")
 	public Gson gson;
    
    //배경이미지, 배경이미지 가로-세로 길이 [ init() 에서 초기화 ]
+	@SuppressWarnings("exports")
 	public BufferedImage mapImg;
 	public int mapW;
 	public int mapH;
    //캐릭터, 회전 된 캐릭터 이미지를 저장할 BufferedImage 객체 [ init() 에서 초기화 ] 
+	@SuppressWarnings("exports")
 	public BufferedImage character;
 //   private BufferedImage rotatedCharacter;
 	public int rotatedCharacterW;
 	public int rotatedCharacterH;
    
    //캐릭터 회전을 위해 필요한 객체들
+	@SuppressWarnings("exports")
 	public GraphicsConfiguration gc = getDefaultConfiguration();
+	@SuppressWarnings("exports")
 	public BufferedImage result;
+	@SuppressWarnings("exports")
 	public Graphics2D g;
    //캐릭터 회전 축 (원본 캐릭터 이미지 파일을 기준으로 설정해야 함)
 	public final int rotateAxisX = 123; // 세로방향 이미지 : 120 , 가로방향 이미지 = 123
@@ -83,7 +94,8 @@ public class GameFrame extends JFrame implements Runnable{
    double angle = 0;
    
    //총알 관련
-   public BufferedImage bulletImg;
+   @SuppressWarnings("exports")
+public BufferedImage bulletImg;
 //   private BufferedImage rotatedBullet;
    public int rotatedBulletW;
    public int rotatedBulletH;
@@ -108,7 +120,6 @@ public class GameFrame extends JFrame implements Runnable{
    private GameModel sendGameModel;
    
    private GameModelList receiveGameModelList;
-   private String jsonData;
    
    //캐릭터 그릴 위치 보정을 위한 변수 [ init() 에서 초기화 ]
    private int offsetX;
@@ -124,7 +135,8 @@ public class GameFrame extends JFrame implements Runnable{
    private BufferedImage mapCharacterCollision;
    private BufferedImage mapBulletCollision;
    
-   public JSONObject Json_parser(String data) {
+   @SuppressWarnings("exports")
+public JSONObject Json_parser(String data) {
 		
 		JSONObject json_data = null;
 		
@@ -139,6 +151,7 @@ public class GameFrame extends JFrame implements Runnable{
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String Json_maker(String data,String type) {
 		
 		JSONObject object = new JSONObject();
@@ -396,7 +409,7 @@ public class GameFrame extends JFrame implements Runnable{
               	  
              		dataoutputstream.writeUTF(re);
              		
-             		new MainFrame_re(dataoutputstream,datainputstream);
+             		new MainFrame(dataoutputstream,datainputstream);
                     dispose();
                     break;
              	}
@@ -426,7 +439,7 @@ public class GameFrame extends JFrame implements Runnable{
                 	  
                 	  dataoutputstream.writeUTF(re);
 	
-           				new MainFrame_re(dataoutputstream,datainputstream);
+           				new MainFrame(dataoutputstream,datainputstream);
            				dispose();
            				break;
                 	  

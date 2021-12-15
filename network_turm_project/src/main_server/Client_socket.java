@@ -360,7 +360,10 @@ public class Client_socket extends Thread {
 					server.make_Room(Data, this,ID);
 					break;
 				case "join_Room":
-					server.Join_Room(Data, this,ID);
+					server.Join_Room(Data, this,ID, true);
+					break;
+				case "join_Room_Ninfo":
+					server.Join_Room(Data, this,ID, false);
 					break;
 				case "new_G_Room":
 					for(Client_socket tmp : manager.client_list.values()) {

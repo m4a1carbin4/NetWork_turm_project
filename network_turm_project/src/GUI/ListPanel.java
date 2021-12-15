@@ -221,8 +221,6 @@ public class ListPanel extends JPanel implements ActionListener, AdjustmentListe
 	private void Calc() {
 		int count = item_texts.size() - item_size + 1;
 
-		System.out.println(count);
-
 		if (count <= 0) {
 			scroll.setEnabled(false);
 

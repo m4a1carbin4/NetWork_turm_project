@@ -53,7 +53,7 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 	
 	private Hashtable<String, String> dataKeeper;
 	
-	// 통신용
+	// �넻�떊�슜
 	Socket socket = null;
 	InputStream input = null;
 	OutputStream output = null;
@@ -92,23 +92,23 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 	    setLocation((resolution.width - login_size[0]) / 2, (resolution.height - login_size[1]) / 2);
 	    setSize(login_size[0], login_size[1]);
 	    
+	    this.datainput = datainput;
+		this.dataoutput = dataoutput;
 	    initialize(1);
 	    start();
 	    valid = true;
-	    this.datainput = datainput;
-		this.dataoutput = dataoutput;
 		System.out.println("status = " + "return");
 		
 		in = new BufferedReader(new InputStreamReader(System.in));
 		
 	}
 	
-	// 통신 초기화
+
 	private void initNet(String ip, int port) {
 		try {
-			// 서버에 접속 시도
+
 			socket = new Socket(ip, port);
-			// 통신용 input, output 클래스 설정
+
 			input = socket.getInputStream();
 			output = socket.getOutputStream();
 			
@@ -118,10 +118,10 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			valid = true;
 			
 		} catch (UnknownHostException e) {
-			System.out.println("IP 주소가 다릅니다.");
+			System.out.println("IP 에러 발생");
 			//e.printStackTrace();
 		} catch (IOException e) {
-			System.out.println("접속 실패");
+			System.out.println("에러발생");
 			//System.exit(0);
 			//e.printStackTrace();
 		}
@@ -428,6 +428,13 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 					}
 					break;
 					
+				case "MainFrame.new_Room.Success":
+					if (chat != null) {
+						chat.actionPerformed(new ActionEvent(this, 0, "AddChannel " + Data));
+						chat.actionPerformed(new ActionEvent(this, 0, "Channel " + Data));
+					}
+					break;
+					
 				default:
 					dataKeeper.put(Type, Data);
 				}
@@ -477,7 +484,7 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 		
 		switch (e.getActionCommand()) {
 		case "Login":
-			Thread thread = new Thread(this); // run 함수 -> this
+			Thread thread = new Thread(this); // run �븿�닔 -> this
 			thread.start();
 			break;
 		
@@ -508,7 +515,7 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			break;
 		case "Room":
 			
-			String room_name=JOptionPane.showInputDialog("룸 이름 입력.");
+			String room_name=JOptionPane.showInputDialog("방 이름 입력.");
 			
 			var data1 = Json_Controller.wrap("new_Room", room_name);
 			System.out.println("Room: "  + data1);
@@ -522,7 +529,7 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			break;
 			
 		case "GRoom":
-			String room_name1=JOptionPane.showInputDialog("룸 이름 입력.");
+			String room_name1=JOptionPane.showInputDialog("방 이름 입력.");
 			
 			var data11 = Json_Controller.wrap("new_G_Room", room_name1);
 			
@@ -536,7 +543,7 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			break;
 		case "JRoom":
 			
-			String room_name2=JOptionPane.showInputDialog("룸 이름 입력.");
+			String room_name2=JOptionPane.showInputDialog("방 이름 입력.");
 			
 			var data2 = Json_Controller.wrap("join_Room", room_name2);
 			
@@ -550,7 +557,7 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			break;
 			
 		case "JGRoom":
-			String room_name3=JOptionPane.showInputDialog("룸 이름 입력.");
+			String room_name3=JOptionPane.showInputDialog("방 이름 입력.");
 			
 			var data22 = Json_Controller.wrap("join_G_Room", room_name3);
 			

@@ -6,20 +6,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 
-import GUI.ImagedButton;
 import GUI.ImagedButton9;
 import GUI.ScrollPanel;
 import Json_Controller.Json_Controller;
@@ -32,12 +25,7 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 	private JPanel listPanel = null;
 	private ChattingDialog display = null;
 	
-	private boolean valid = false;
-	
-	private boolean thread_breaker = false;
-	private ArrayList<Thread> thread_list = null;
-	
-	private ArrayList<String> playerList = null;
+	private ArrayList<String> roomList = null;
 	
 	public Chat(Object parent, int x, int y, int w, int t) {
 		super();
@@ -45,14 +33,10 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 		this.parent = parent;
 		
 		setBounds(x, y, w, t);
-		
-		valid = true;
 		initialize();
 	}
 	
 	public void initialize() {
-		thread_list = new ArrayList<Thread>();
-		
 		setLayout(null);
 		setUndecorated(true);
 		setBackground(Color.WHITE);
@@ -74,17 +58,14 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 		
 		display = new ChattingDialog(32);
 		display.setBounds(120, 32, rect.width - 121, rect.height - 62);
-		//display.setBorder(new LineBorder(Color.BLACK, 1, true));
+		display.setBorder(new LineBorder(Color.BLACK, 1, true));
 		add(display);
 	}
 	
 	public void appear() {
-		/*breakThread();
-		
-		var th = new Thread(new app_task(this, 0.2f));
-		th.setDaemon(true);
-		th.start();
-		thread_list.add(th);*/
+		var main = (MainFrame)this.parent;
+		var d = main.getBounds();
+		setLocation(d.x + d.width - 440, d.y + d.height - 350);
 		setVisible(true);
 	}
 
@@ -93,10 +74,15 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 		String[] args = e.getActionCommand().split(" ");
 		
 		String command = null;
-		if (args.length < 2)
+		String data = null;
+		if (args.length < 2) {
 			command = e.getActionCommand();
-		else
+			data = "";
+		}
+		else {
 			command = args[0];
+			data = e.getActionCommand().substring(args[0].length() + 1);
+		}
 		
 		switch (command) {
 		case "exit":
@@ -117,6 +103,12 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 			display.append(t);
 			break;
 		case "Channel":
+			if (isChannel(data))
+			{
+				System.out.println("??");
+				return;
+			}
+			
 			var cs = listPanel.getComponents();
 			for (int i = 0; i < cs.length; i++) {
 				if (cs[i] instanceof ScrollPanel) {
@@ -124,30 +116,68 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 					for (i = 0; i < cs.length; i++) {
 						if (cs[i] instanceof ImagedButton9) {
 							var imgbtn = (ImagedButton9)cs[i];
-							if (!args[1].contentEquals(imgbtn.getText()))
+							if (!data.contentEquals(imgbtn.getText()))
 								imgbtn.setEnabled(true);
 						}
 					}
 					break;
 				}
 			}
-			((ImagedButton9)e.getSource()).setEnabled(false);
+			
+			if (e.getSource() instanceof ImagedButton9)
+				((ImagedButton9)e.getSource()).setEnabled(false);
+
+			String data2 = null;
+			
+			if (data.contentEquals("#HERE"))
+				data2 = Json_Controller.wrap("return","return_request");
+			else
+				data2 = Json_Controller.wrap("join_Room_Ninfo", data);
+			
+			System.out.println("test: " + data2);
+			try {
+				((MainFrame)parent).dataoutput.writeUTF(data2);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			break;
-		case "Add":
-			constructChatlist();
-			break;
-		case "Whisper":
-			int i;
-			for (i = 0; i < playerList.size(); i++)
-				if (playerList.get(i).contentEquals(args[1]))
-					break;
-				
-			if (i == playerList.size())
-				playerList.add(args[1]);
-		case "Back":
-			constructLPanel();
+		case "AddChannel":
+			if (!hasChannel(data)) {
+				this.roomList.add(data);
+				this.constructLPanel();
+			}
 			break;
 		}
+	}
+	
+	public boolean hasChannel(String data) {
+		if (roomList == null)
+			return false;
+		
+		for (int i = 0; i < roomList.size(); i++)
+			if (data.contentEquals(roomList.get(i)))
+				return true;
+		
+		return false;
+	}
+	
+	public boolean isChannel(String data) {
+		var cs = listPanel.getComponents();
+		for (int i = 0; i < cs.length; i++) {
+			if (cs[i] instanceof ScrollPanel) {
+				cs = ((ScrollPanel)cs[i]).getSubComponents();
+				for (i = 0; i < cs.length; i++) {
+					if (cs[i] instanceof ImagedButton9) {
+						var imgbtn = (ImagedButton9)cs[i];
+						if (!imgbtn.isEnabled() && data.contentEquals(imgbtn.getText()))
+							return true;
+					}
+				}
+				return false;
+			}
+		}
+		
+		return false;
 	}
 	
 	public void setComponentVisible(boolean value) {
@@ -169,8 +199,8 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 		
 		listPanel.removeAll();
 		
-		if (playerList == null)
-			playerList = new ArrayList<String>();
+		if (roomList == null)
+			roomList = new ArrayList<String>();
 		
 		var scpanel = new ScrollPanel(false, false);
 		scpanel.setBounds(0, 0, 120, rect.height - 50);
@@ -185,7 +215,7 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 		all9.setEnabled(false);
 		scpanel.add(all9);
 		
-		var iter = playerList.iterator();
+		var iter = roomList.iterator();
 		while (iter.hasNext()) {
 			y += 40;
 			
@@ -196,181 +226,20 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 			scpanel.add(all9);
 		}
 		
-		var addbtn = new ImagedButton9(this, "New Chat", "gui/imagedbutton9/button", "Add");
+		var addbtn = new ImagedButton9(this, "Room List", "gui/imagedbutton9/button", "Add");
 		addbtn.setBounds(20, rect.height - 41, 80, 30);
+		addbtn.setEnabled(false);
 		listPanel.add(addbtn);
 		
 		listPanel.repaint();
 	}
 	
-	private void constructChatlist() {
-		if (listPanel == null)
-			return;
-		
-		if (this.parent == null)
-			return;
-		
-		listPanel.removeAll();
-		
-		MainFrame mainFrame = null;
-		try {
-			mainFrame = (MainFrame)this.parent;
-			mainFrame.dataoutput.writeUTF(Json_Controller.wrap("lobby_list", null));
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			return;
-		}
-		
-		var wait = new JLabel("Loading...", JLabel.CENTER);
-		wait.setBounds(20, 50, 80, 30);
-		listPanel.add(wait);
-
-		listPanel.repaint();
-		
-		String result = null;
-		while ((result = mainFrame.getData("Player_List")) == null) {};
-
-		listPanel.remove(wait);
-		
-		var rect = getBounds();
-		
-		var prev = new ImagedButton9(this, "Back", "gui/imagedbutton9/button");
-		prev.setBounds(20, rect.height - 41, 80, 30);
-		listPanel.add(prev);
-		
-		var scpanel = new ScrollPanel(false, false);
-		scpanel.setBounds(0, 0, 120, rect.height - 50);
-		scpanel.setBorder(new LineBorder(Color.BLACK, 1, true));
-		scpanel.setScrollValue(3);
-		listPanel.add(scpanel);
-		
-		if (result.length() == 0) {
-			var none = new JLabel("There is no user.");
-			none.setBounds(10, 10, 100, 30);
-			scpanel.add(none);
-			listPanel.repaint();
-			return;
-		}
-
-		var names = result.split(";");
-
-		int y = 10;
-		for (int i = 0; i < names.length; i++) {
-			var all9 = new ImagedButton9(this, names[i], "gui/imagedbutton9/button", "Whisper " + names[i]);
-			all9.setBounds(16, y, 80, 30);
-			all9.setVisible(true);
-			
-			int j;
-			for (j = 0; j < playerList.size(); j++)
-				if (playerList.get(j).contentEquals(names[i]))
-					break;
-			
-			all9.setEnabled(j == playerList.size());
-			scpanel.add(all9);
-			
-			y += 40;
-		}
-		
-		listPanel.repaint();
-	}
-	
-	private void breakThread() {
-		thread_breaker = true;
-		while (true) {
-			var it = thread_list.iterator();
-			while (it.hasNext()) {
-				if (it.next().isAlive())
-					break;
-			}
-			if (!it.hasNext())
-				break;
-			try { wait(10); } catch (Exception e) {}
-		}
-		thread_list.clear();
-		thread_breaker = false;
-	}
-
-	private class out_task implements Runnable {
-		final Chat target;
-		final long time;
-		final float task_time;
-		out_task(Chat p, float ttime) { target = p; time = System.currentTimeMillis(); task_time = ttime; }
-		public void run() {
-			target.setComponentVisible(false);
-			var rect = target.getBounds();
-			while (true) {
-				if (target.thread_breaker || !target.valid)
-					return;
-				
-				if (task_time == 0.0f)
-					break;
-				
-				float passed = (float)(System.currentTimeMillis() - time) / 1000.0f;
-				passed /= task_time;
-				
-				if (passed > 1.0f)
-					break;
-				
-				int ww = (int)((float)rect.width * passed);
-				int tt = (int)((float)rect.height * passed);
-				target.setBounds(rect.x + ww, rect.y + tt, rect.width - ww, rect.height - tt);
-				
-				try { Thread.sleep(10);} catch (Exception e) { e.printStackTrace(); }
-			}
-			target.setVisible(false);
-		}
-	}
-
-	private class app_task implements Runnable {
-		final Chat target;
-		final long time;
-		final float task_time;
-		app_task(Chat p, float ttime) { target = p; time = System.currentTimeMillis(); task_time = ttime; }
-		public void run() {
-			target.setComponentVisible(false);
-			var rect = target.getBounds();
-			while (true) {
-				if (target.thread_breaker || !target.valid)
-					return;
-				
-				if (task_time == 0.0f)
-					break;
-				
-				float passed = (float)(System.currentTimeMillis() - time) / 1000.0f;
-				passed /= task_time;
-				
-				if (passed > 1.0f)
-					break;
-				
-				passed = 1.0f - passed;
-				
-				int ww = (int)((float)rect.width * passed);
-				int tt = (int)((float)rect.height * passed);
-				target.setBounds(rect.x + ww, rect.y + tt, rect.width - ww, rect.height - tt);
-				
-				if (!target.isVisible())
-					target.setVisible(true);
-				
-				try { Thread.sleep(10);} catch (Exception e) { break; }
-			}
-			target.setBounds(rect.x, rect.y, rect.width, rect.height);
-			target.setComponentVisible(true);
-		}
-	}
-	
 	public void out() {
 		setVisible(false);
-		/*breakThread();
-		
-		var th = new Thread(new out_task(this, 0.2f));
-		th.setDaemon(true);
-		th.start();
-		thread_list.add(th);*/
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {
-	}
+	public void keyTyped(KeyEvent e) { }
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -380,6 +249,5 @@ public class Chat extends JDialog implements ActionListener, KeyListener {
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
-	}
+	public void keyReleased(KeyEvent e) { }
 }

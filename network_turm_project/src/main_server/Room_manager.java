@@ -30,6 +30,9 @@ public class Room_manager {
 			Room_list.put(Room_name, new_room);
 			new_room.add_user(user, ID);
 			user.Room_clear();
+			
+			try { user.dataoutputstream.writeUTF(user.Json_maker(Room_name, "MainFrame.new_Room.Success")); }
+			catch (IOException e) { e.printStackTrace(); }
 			//user.send_message("new_Room has been made.");
 			
 			return true;

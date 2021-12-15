@@ -129,7 +129,7 @@ public class Main_server {
 		}
 	}
 	
-	public synchronized void Join_Room(String data,Client_socket socket,int ID) {
+	public synchronized void Join_Room(String data,Client_socket socket,int ID,boolean inform) {
 		socket.manager.client_leave(ID, socket);
 		
 		for(Client_socket dsocket : manager.client_list.values()) {
@@ -137,6 +137,10 @@ public class Main_server {
 		}
 		if(R_manager.Join_Room(socket, data,ID)) {
 			System.out.println("the room join made.");
+			if (inform) {
+				try { socket.dataoutputstream.writeUTF(socket.Json_maker(data, "MainFrame.new_Room.Success")); }
+				catch (IOException e) { e.printStackTrace(); }
+			}
 		}
 	}
 	
@@ -218,6 +222,8 @@ public class Main_server {
 		}
 		
 	}
+	
+	
 	
 	public synchronized void inform_user_list(Client_socket socket) {
 		if (!JDBC.getBool(socket.ID, "connection")) {
