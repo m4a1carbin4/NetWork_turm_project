@@ -108,12 +108,10 @@ public class DataExportToAllClient extends Thread{
 		}
 
 		for (int i = 0; i < gameModelList.getGameModelList().size(); i++) {
-			
 			if (gameModelList.getGameModelList().get(i).getPlayer().getCurHp() <= 0) {
 				for (int j = 0; j < clientList.size(); j++) {
 					if (gameModelList.getGameModelList().get(i).getPlayer().getStz_username()
 							== clientList.get(j).ID) {
-						JDBC.LOSE_add(clientList.get(j).ID);
 						clientList.remove(j);
 						num--;
 					}

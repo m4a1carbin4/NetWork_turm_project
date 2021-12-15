@@ -12,6 +12,7 @@ import java.util.Hashtable;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,13 +26,11 @@ import Json_Controller.Json_Controller;
 
 import javax.swing.JTextField;
 
-public class Chat extends JPanel implements ActionListener, KeyListener {
+public class Chat extends JDialog implements ActionListener, KeyListener {
 	private final Object parent;
 	
 	private JPanel listPanel = null;
 	private ChattingDialog display = null;
-	
-	public final int x, y, w, t;
 	
 	private boolean valid = false;
 	
@@ -44,12 +43,6 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		super();
 		
 		this.parent = parent;
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.t = t;
-		
-		this.setBackground(Color.WHITE);
 		
 		setBounds(x, y, w, t);
 		
@@ -61,33 +54,38 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		thread_list = new ArrayList<Thread>();
 		
 		setLayout(null);
+		setUndecorated(true);
+		setBackground(Color.WHITE);
 		
-		setBorder(new LineBorder(Color.BLACK, 1, true));
+		//setBorder(new LineBorder(Color.BLACK, 1, true));
 		
 		constructLPanel();
 		
+		var rect = getBounds();
+		
 		var exitbtn = new ImagedButton9(this, "X", "gui/imagedbutton9/button", "exit");
-		exitbtn.setBounds(this.w - 31, 1, 30, 30);
+		exitbtn.setBounds(rect.width - 31, 1, 30, 30);
 		add(exitbtn);
 		
 		var input = new JTextField();
-		input.setBounds(120, this.t - 30, this.w - 120, 30);
+		input.setBounds(120, rect.height - 30, rect.width - 120, 30);
 		input.addKeyListener(this);
 		add(input);
 		
 		display = new ChattingDialog(32);
-		display.setBounds(125, 40, this.w - 130, this.t - 73);
+		display.setBounds(120, 32, rect.width - 121, rect.height - 62);
 		//display.setBorder(new LineBorder(Color.BLACK, 1, true));
 		add(display);
 	}
 	
 	public void appear() {
-		breakThread();
+		/*breakThread();
 		
 		var th = new Thread(new app_task(this, 0.2f));
 		th.setDaemon(true);
 		th.start();
-		thread_list.add(th);
+		thread_list.add(th);*/
+		setVisible(true);
 	}
 
 	@Override
@@ -159,11 +157,12 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 	}
 	
 	private void constructLPanel() {
+		var rect = getBounds();
 		if (listPanel == null) {
 			listPanel = new JPanel();
 			listPanel.setBorder(new LineBorder(Color.BLACK, 1, true));
 			listPanel.setBackground(Color.WHITE);
-			listPanel.setBounds(0, 0, 120, this.t);
+			listPanel.setBounds(0, 0, 120, rect.height);
 			listPanel.setLayout(null);
 			add(listPanel);
 		}
@@ -174,7 +173,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 			playerList = new ArrayList<String>();
 		
 		var scpanel = new ScrollPanel(false, false);
-		scpanel.setBounds(0, 0, 120, this.t - 50);
+		scpanel.setBounds(0, 0, 120, rect.height - 50);
 		scpanel.setBorder(new LineBorder(Color.BLACK, 1, true));
 		scpanel.setScrollValue(3);
 		listPanel.add(scpanel);
@@ -198,7 +197,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		}
 		
 		var addbtn = new ImagedButton9(this, "New Chat", "gui/imagedbutton9/button", "Add");
-		addbtn.setBounds(20, this.t - 41, 80, 30);
+		addbtn.setBounds(20, rect.height - 41, 80, 30);
 		listPanel.add(addbtn);
 		
 		listPanel.repaint();
@@ -233,12 +232,14 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 
 		listPanel.remove(wait);
 		
+		var rect = getBounds();
+		
 		var prev = new ImagedButton9(this, "Back", "gui/imagedbutton9/button");
-		prev.setBounds(20, this.t - 41, 80, 30);
+		prev.setBounds(20, rect.height - 41, 80, 30);
 		listPanel.add(prev);
 		
 		var scpanel = new ScrollPanel(false, false);
-		scpanel.setBounds(0, 0, 120, this.t - 50);
+		scpanel.setBounds(0, 0, 120, rect.height - 50);
 		scpanel.setBorder(new LineBorder(Color.BLACK, 1, true));
 		scpanel.setScrollValue(3);
 		listPanel.add(scpanel);
@@ -296,6 +297,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		out_task(Chat p, float ttime) { target = p; time = System.currentTimeMillis(); task_time = ttime; }
 		public void run() {
 			target.setComponentVisible(false);
+			var rect = target.getBounds();
 			while (true) {
 				if (target.thread_breaker || !target.valid)
 					return;
@@ -309,9 +311,9 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 				if (passed > 1.0f)
 					break;
 				
-				int ww = (int)((float)target.w * passed);
-				int tt = (int)((float)target.t * passed);
-				target.setBounds(target.x + ww, target.y + tt, target.w - ww, target.t - tt);
+				int ww = (int)((float)rect.width * passed);
+				int tt = (int)((float)rect.height * passed);
+				target.setBounds(rect.x + ww, rect.y + tt, rect.width - ww, rect.height - tt);
 				
 				try { Thread.sleep(10);} catch (Exception e) { e.printStackTrace(); }
 			}
@@ -326,6 +328,7 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 		app_task(Chat p, float ttime) { target = p; time = System.currentTimeMillis(); task_time = ttime; }
 		public void run() {
 			target.setComponentVisible(false);
+			var rect = target.getBounds();
 			while (true) {
 				if (target.thread_breaker || !target.valid)
 					return;
@@ -341,27 +344,28 @@ public class Chat extends JPanel implements ActionListener, KeyListener {
 				
 				passed = 1.0f - passed;
 				
-				int ww = (int)((float)target.w * passed);
-				int tt = (int)((float)target.t * passed);
-				target.setBounds(target.x + ww, target.y + tt, target.w - ww, target.t - tt);
+				int ww = (int)((float)rect.width * passed);
+				int tt = (int)((float)rect.height * passed);
+				target.setBounds(rect.x + ww, rect.y + tt, rect.width - ww, rect.height - tt);
 				
 				if (!target.isVisible())
 					target.setVisible(true);
 				
 				try { Thread.sleep(10);} catch (Exception e) { break; }
 			}
-			target.setBounds(target.x, target.y, target.w, target.t);
+			target.setBounds(rect.x, rect.y, rect.width, rect.height);
 			target.setComponentVisible(true);
 		}
 	}
 	
 	public void out() {
-		breakThread();
+		setVisible(false);
+		/*breakThread();
 		
 		var th = new Thread(new out_task(this, 0.2f));
 		th.setDaemon(true);
 		th.start();
-		thread_list.add(th);
+		thread_list.add(th);*/
 	}
 
 	@Override

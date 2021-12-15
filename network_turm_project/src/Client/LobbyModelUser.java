@@ -1,9 +1,9 @@
 package Client;
 
 public class LobbyModelUser {
-	public int user_id;
-	public int WIN;
-	public int LOSE;
+	public Integer user_id;
+	public Integer WIN;
+	public Integer LOSE;
 	public String Stz_logstate;
 	public String stz_ready;
 	

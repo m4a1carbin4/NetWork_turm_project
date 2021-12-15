@@ -26,6 +26,13 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 	protected int org_x, org_y;
 	protected int adjust_x, adjust_y;
 	protected int move_w, move_t;
+	
+	/**
+	 * 0: Move to top, 
+	 * 1: Move to bottom, 
+	 * 2: Same position
+	**/
+	private int mode;
 
 	public ScrollPanel(boolean vertical, boolean horizontal) {
 		super();
@@ -49,8 +56,14 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		this.vertical.addAdjustmentListener(this);
 		this.horizontal.addAdjustmentListener(this);
 		this.addMouseWheelListener(this);
+		
+		this.mode = 0;
 
 		org_x = org_y = move_w = move_t = 0;
+	}
+	
+	public void setMode(int value) {
+		this.mode = value;
 	}
 	
 	public int getSubComponentCount() {
@@ -162,60 +175,109 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		
 		int maxx = 0, maxy = 0;
 		
-		if (d.width < wide) {
+		if (d.width < wide)
 			maxx = wide / d.width + 1;
+
+		if (d.height < tall)
+			maxy = tall / d.height + 1;
+
+		if (maxx > 0) {
+			move_w = (int)((double)wide / maxx);
 
 			if (min_x < 0) {
 				adjust_x = -min_x / move_w;
 				if (min_x % move_w != 0)
 					adjust_x++;
 			}
+			
+			int prev = horizontal.getValue();
+			
+			horizontal.setVisible(true);
+			horizontal.setMinimum(0);
+			horizontal.setMaximum(maxx);
+			
+			switch (mode) {
+			case 0:
+				horizontal.setValue(0);
+				break;
+			case 1:
+				horizontal.setValue(maxx);
+				break;
+			case 2:
+				horizontal.setValue(Math.min(prev, maxx));
+				break;
+			}
 		}
-
-		if (d.height < tall) {
-			maxy = tall / d.height + 1;
+		else {
+			int prev = horizontal.getValue();
+			horizontal.setVisible(hshow);
+			horizontal.setMinimum(0);
+			horizontal.setMaximum(1);
+			
+			switch (mode) {
+			case 0:
+				horizontal.setValue(0);
+				break;
+			case 1:
+				horizontal.setValue(maxx);
+				break;
+			case 2:
+				horizontal.setValue(Math.min(prev, maxx));
+				break;
+			}
+		}
+		
+		if (maxy > 0) {
+			move_t = (int)((double)tall / maxy);
+			System.out.println(move_t);
 
 			if (min_y < 0) {
 				adjust_y = -min_y / move_t;
 				if (min_y % move_t != 0)
 					adjust_y++;
 			}
-		}
-
-		if (maxx > 0) {
-			move_w = (int)((double)wide / maxx);
 			
-			if (maxx > 0) {
-				horizontal.setVisible(true);
-				horizontal.setMinimum(0);
-				horizontal.setMaximum(maxx);
-				horizontal.setValue(0);
-			}
-		}
-		else {
-			horizontal.setVisible(hshow);
-			horizontal.setMinimum(0);
-			horizontal.setMaximum(1);
-			horizontal.setValue(0);
-		}
-		
-		if (maxy > 0) {
-			move_t = (int)((double)tall / maxy);
-			if (maxx <= 0)
+			if (maxy <= 0)
 				this.vertical.setBounds(d.width - 8, 0, 16, d.height + 16);
 			else
 				this.vertical.setBounds(d.width - 8, 0, 16, d.height);
+
+			int prev = vertical.getValue();
 			
 			vertical.setVisible(true);
 			vertical.setMinimum(0);
 			vertical.setMaximum(maxy);
-			vertical.setValue(0);
+			
+			switch (mode) {
+			case 0:
+				vertical.setValue(0);
+				break;
+			case 1:
+				vertical.setValue(maxy);
+				break;
+			case 2:
+				vertical.setValue(Math.min(prev, maxy));
+				break;
+			}
 		}
 		else {
+			int prev = vertical.getValue();
+			
 			vertical.setVisible(vshow);
 			vertical.setMinimum(0);
 			vertical.setMaximum(1);
-			vertical.setValue(0);
+			
+			switch (mode) {
+			case 0:
+				vertical.setValue(0);
+				break;
+			case 1:
+				vertical.setValue(maxy);
+				break;
+			case 2:
+				vertical.setValue(Math.min(prev, maxy));
+				break;
+			}
 		}
 		
 		mainPanel.setBounds(org_x, org_y, wide, tall);

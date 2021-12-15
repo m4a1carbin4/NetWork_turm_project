@@ -89,6 +89,49 @@ public class ImagedLabel9 extends ImagedLabel {
 		if (repaint)
 			this.repaint();
 	}
+
+	public void setTImage(String file, boolean repaint) {
+		if (image == null)
+			image = new ImageIcon[9];
+		
+		String path = System.getProperty("user.dir");
+		
+		for (int i = 0; i < 9; i++) {
+			String tpath = path + "/" + file;
+			
+			tpath += "_";
+
+			switch (i / 3) {
+			case 0:
+				tpath += "t"; // top
+				break;
+			case 1:
+				tpath += "m"; // mid
+				break;
+			case 2:
+				tpath += "b"; // bottom
+				break;
+			}
+
+			switch (i % 3) {
+			case 0:
+				tpath += "l"; // left
+				break;
+			case 1:
+				tpath += "c"; // center
+				break;
+			case 2:
+				tpath += "r"; // right
+				break;
+			}
+			
+			tpath += "n.png";
+			image[i] = new ImageIcon(tpath);
+		}
+		
+		if (repaint)
+			this.repaint();
+	}
 	
 	public void setEdgeSize(int w, int t) {
 		edge_w = w;

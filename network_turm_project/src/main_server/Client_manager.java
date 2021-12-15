@@ -74,6 +74,7 @@ public class Client_manager{
 		if(Home.remove_client(user)) {
 			client_list.remove(user.ID);
 			user_num --;
+			
 			return true;
 		}else {
 			return false;

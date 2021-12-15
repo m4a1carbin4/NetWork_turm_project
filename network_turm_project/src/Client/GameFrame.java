@@ -196,7 +196,7 @@ public class GameFrame extends JFrame implements Runnable{
 
       //내 캐릭터 좌표 변경하는 메서드 17ms 마다 호출
       ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-      service.scheduleAtFixedRate(this, 0, 17, TimeUnit.MILLISECONDS);
+      service.scheduleAtFixedRate(this, 0, 10, TimeUnit.MILLISECONDS);
 
       setVisible(true);
       
@@ -388,8 +388,8 @@ public class GameFrame extends JFrame implements Runnable{
      				
      			String Type = (String) input_data.get("Type");
      			String Data = (String) input_data.get("Data");
-             	
-             	if(Type.equals("Game_end")) {
+             	 
+     			if(Type.equals("Game_end")) {
              		JOptionPane.showMessageDialog(null, Data);
              		
              		String re = Json_Controller.wrap("return","return"); 
