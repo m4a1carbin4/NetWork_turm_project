@@ -428,6 +428,13 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 					}
 					break;
 					
+				case "MainFrame.new_Room.Success":
+					if (chat != null) {
+						chat.actionPerformed(new ActionEvent(this, 0, "AddChannel " + Data));
+						chat.actionPerformed(new ActionEvent(this, 0, "Channel " + Data));
+					}
+					break;
+					
 				default:
 					dataKeeper.put(Type, Data);
 				}
@@ -522,7 +529,11 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			break;
 			
 		case "GRoom":
-			String room_name1=JOptionPane.showInputDialog("룸 이름 입력.");
+			String room_name1 = JOptionPane.showInputDialog("룸 이름 입력.");
+			if (room_name1 == null || room_name1.length() == 0) {
+				JOptionPane.showMessageDialog(null, "Invalid input. Please try again.");
+				return;
+			}
 			
 			var data11 = Json_Controller.wrap("new_G_Room", room_name1);
 			
@@ -535,8 +546,11 @@ public class MainFrame extends JFrame implements ActionListener, Runnable {
 			
 			break;
 		case "JRoom":
-			
-			String room_name2=JOptionPane.showInputDialog("룸 이름 입력.");
+			String room_name2 = JOptionPane.showInputDialog("룸 이름 입력.");
+			if (room_name2 == null || room_name2.length() == 0) {
+				JOptionPane.showMessageDialog(null, "Invalid input. Please try again.");
+				return;
+			}
 			
 			var data2 = Json_Controller.wrap("join_Room", room_name2);
 			

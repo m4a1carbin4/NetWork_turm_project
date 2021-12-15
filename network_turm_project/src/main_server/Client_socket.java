@@ -356,7 +356,10 @@ public class Client_socket extends Thread {
 					server.make_Room(Data, this,ID);
 					break;
 				case "join_Room":
-					server.Join_Room(Data, this,ID);
+					server.Join_Room(Data, this,ID, true);
+					break;
+				case "join_Room_Ninfo":
+					server.Join_Room(Data, this,ID, false);
 					break;
 				case "new_G_Room":
 					server.G_make_Room(Data, this,ID);
@@ -409,9 +412,6 @@ public class Client_socket extends Thread {
 					user_lobby.setStz_ready(Data);
 					server.R_manager.brodcast_lobby(G_name_ptr);
 					server.R_manager.start_request(G_name_ptr,service);
-					break;
-				case "lobby_list":
-					server.get_player_list(this);
 					break;
 				case "Request.Room_List":
 					server.inform_room_list(this);

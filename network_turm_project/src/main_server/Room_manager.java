@@ -24,16 +24,19 @@ public class Room_manager {
 	
 	public Boolean Make_Room(Client_socket user,String Room_name ,int ID) {
 		
-		if(Room_list.get(Room_name) == null) {
+		if (Room_list.get(Room_name) == null) {
 			
 			Room new_room = new Room(this,server);
 			Room_list.put(Room_name, new_room);
 			new_room.add_user(user, ID);
 			user.Room_clear();
+			
+			try { user.dataoutputstream.writeUTF(user.Json_maker(Room_name, "MainFrame.new_Room.Success")); }
+			catch (IOException e) { e.printStackTrace(); }
 			//user.send_message("new_Room has been made.");
 			
 			return true;
-		}else {
+		} else {
 			user.Room_fail();
 			return false;
 		}
@@ -43,9 +46,10 @@ public class Room_manager {
 	public Boolean Join_Room(Client_socket user, String Room_name, int ID) {
 		Room tmp = Room_list.get(Room_name);
 		
-		if(tmp != null) {
+		if (tmp != null) {
 			tmp.add_user(user, ID);
 			user.Room_clear();
+			
 			//user.send_message("System : success Join the "+Room_name+".");
 			return true;
 		}else {

@@ -7,7 +7,6 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.HashMap;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -229,7 +228,6 @@ public class ScrollPanel extends JPanel implements AdjustmentListener, MouseWhee
 		
 		if (maxy > 0) {
 			move_t = (int)((double)tall / maxy);
-			System.out.println(move_t);
 
 			if (min_y < 0) {
 				adjust_y = -min_y / move_t;
