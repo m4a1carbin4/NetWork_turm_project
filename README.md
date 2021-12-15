@@ -4,3 +4,11 @@
 Main_server pakage -> server Start -> start server.
 
 Client pakage -> ClientGuiMain -> start client.
+
+use opensource 502starz.
+
+https://github.com/codingspecialist/Java-Swing-Project/tree/master/502%EC%8A%A4%ED%83%80%EC%A6%88%20%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8
+
+youtube_video link.
+
+https://youtu.be/oGTod5bnQGg
